@@ -133,6 +133,33 @@ class DoctorTests(unittest.TestCase):
         self.assertTrue(doctor.successful([runtime, missing_home]))
         self.assertFalse(doctor.successful([runtime, missing_home], True))
 
+    def test_unreadable_named_volume_is_unknown_baseline_not_runtime_failure(self):
+        volume = "/var/lib/docker/volumes/fixture/_data"
+        usage = Mock(total=100, free=90)
+        def read_usage(path):
+            if path == volume:
+                raise PermissionError("Docker-owned directory")
+            return usage
+        with patch.object(doctor.shutil, "disk_usage", side_effect=read_usage):
+            checks = doctor.disk_observations([{"Source": volume, "Type": "volume", "RW": True}])
+        pending = [row for row in checks if row["status"] == "NEEDS_CONFIGURATION"]
+        self.assertEqual(len(pending), 1)
+        self.assertEqual(pending[0]["module"], "home-baseline")
+        self.assertTrue(doctor.successful(checks))
+        self.assertFalse(doctor.successful(checks, home_baseline=True))
+
+    def test_low_volume_space_and_unreadable_bind_still_fail_runtime(self):
+        path = "/fixture/state"
+        for kind, error in (("volume", False), ("bind", True)):
+            with self.subTest(kind=kind):
+                def read_usage(value):
+                    if value == path and error:
+                        raise PermissionError("Unavailable application bind")
+                    return Mock(total=100, free=10 if value == path else 90)
+                with patch.object(doctor.shutil, "disk_usage", side_effect=read_usage):
+                    checks = doctor.disk_observations([{"Source": path, "Type": kind, "RW": True}])
+                self.assertFalse(doctor.successful(checks))
+
     def test_cli_missing_config_returns_valid_redacted_json(self):
         output = io.StringIO()
         with patch.object(doctor, "load_env", side_effect=doctor.ConfigError("secret-config-value")), contextlib.redirect_stdout(output):

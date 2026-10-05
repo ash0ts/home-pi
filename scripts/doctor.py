@@ -290,6 +290,7 @@ def dns_observations(env):
 
 
 def disk_observations(mounts):
+    volume_paths = {item.get("Source", "") for item in mounts if item.get("RW") and item.get("Type") == "volume"}
     paths = {str(ROOT)}
     paths.update(item.get("Source", "") for item in mounts if item.get("RW") and item.get("Type") in {"bind", "volume"})
     result = []
@@ -301,8 +302,12 @@ def disk_observations(mounts):
                                 "State filesystem has at least 20 percent free." if okay else "State filesystem is below the proposed 20 percent free threshold.",
                                 "" if okay else "Review retention and backup/storage usage on the affected state filesystem."))
         except OSError:
+            # Docker-owned volume paths may be unreadable to the checkout owner.
+            # Keep capacity unverified without rolling back a healthy application.
+            module = "home-baseline" if path in volume_paths else "core"
             result.append(check("disk." + str(index), "NEEDS_CONFIGURATION", "A state filesystem is not accessible from this host.",
-                                "Run doctor on the Docker host and verify the expected data storage is mounted."))
+                                "Verify capacity on the Docker host with authorized access; do not change Docker data-directory permissions.",
+                                module=module))
     return result
 
 
