@@ -204,10 +204,18 @@ def verify_sources(routes):
         identifiers = run_compose('ps', '--quiet', service).stdout.split()
         if len(identifiers) != 1 or not re.fullmatch(r'[a-f0-9]{12,64}', identifiers[0]):
             raise ConfigError('Expected one running source container; no routes were changed.')
-        template = '{"running":{{json .State.Running}},"network":{{json .HostConfig.NetworkMode}},"ports":{{json .NetworkSettings.Ports}}}'
+        template = '{"id":{{json .Id}},"running":{{json .State.Running}},"network":{{json .HostConfig.NetworkMode}},"ports":{{json .NetworkSettings.Ports}}}'
         observed = object_json(docker('inspect', '--format', template, identifiers[0]).stdout)
         if observed.get('running') is not True:
             raise ConfigError('Source container is not running; no routes were changed.')
+        if service != route['service']:
+            consumers = run_compose('ps', '--quiet', route['service']).stdout.split()
+            owner_id = observed.get('id', '')
+            if not isinstance(owner_id, str) or not re.fullmatch(r'[a-f0-9]{64}', owner_id) or len(consumers) != 1 or not re.fullmatch(r'[a-f0-9]{12,64}', consumers[0]):
+                raise ConfigError('Expected one running namespace consumer and its current source container; no routes were changed.')
+            consumer = object_json(docker('inspect', '--format', template, consumers[0]).stdout)
+            if consumer.get('running') is not True or consumer.get('network') != 'container:' + owner_id:
+                raise ConfigError('Application is not running in its current source container network namespace; recreate the coupled services before publishing routes.')
         if service == 'pihole':
             effective = docker('exec', identifiers[0], 'pihole-FTL', '--config', 'webserver.port').stdout.strip().strip('"')
             if observed.get('network') != 'host' or effective != '127.0.0.1:8081':

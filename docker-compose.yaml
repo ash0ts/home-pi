@@ -18,6 +18,9 @@ services:
       - ./pihole/etc-pihole:/etc/pihole
       - ./pihole/etc-dnsmasq.d:/etc/dnsmasq.d
     restart: unless-stopped
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: "3"}
 
   tailscale:
     image: tailscale/tailscale:v1.102.5@sha256:c507f3a2a6ab1cabd8d809b98edeb41edbd5c3fb6ad9632ffd098b4c7d0b4065
@@ -38,6 +41,9 @@ services:
       TS_LOCAL_ADDR_PORT: "127.0.0.1:9002"
       TS_USERSPACE: "false"
     restart: unless-stopped
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: "3"}
 
   homer:
     image: b4bz/homer:v26.08.3@sha256:febc8967c9f7648ec37633ef3ae1ec90dbe8b7c46fecab80299f08f05be7ecb6
@@ -50,3 +56,6 @@ services:
       - INIT_ASSETS=1
       - TZ=${TZ}
     restart: unless-stopped
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: "3"}

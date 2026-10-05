@@ -1,30 +1,10 @@
 {
   "schema_version": 1,
   "id": "browser",
-  "description": "Optional private desktop; VPN isolation is a separate migration.",
-  "services": [
-    "webtop"
-  ],
+  "description": "Optional authenticated Webtop browser sharing Gluetun's Mullvad WireGuard network namespace; live fault verification required.",
+  "services": ["gluetun", "webtop"],
   "requires": [],
-  "access": [
-    {
-      "service": "webtop",
-      "title": "Browser",
-      "https_port": 8449,
-      "scheme": "https+insecure",
-      "path": "/",
-      "auth": "application"
-    }
-  ],
-  "state": [
-    {
-      "service": "webtop",
-      "target": "/config",
-      "kind": "essential",
-      "consistency": "stop"
-    }
-  ],
-  "secrets": [
-    "WEBTOP_PASSWORD"
-  ]
+  "access": [{"service": "webtop", "title": "Private browser", "https_port": 8449, "scheme": "https+insecure", "path": "/", "auth": "Webtop basic authentication inside private Tailscale HTTPS access"}],
+  "state": [{"service": "webtop", "target": "/config", "kind": "essential", "consistency": "stop"}],
+  "secrets": ["WEBTOP_PASSWORD", "GLUETUN_WIREGUARD_KEY_FILE", "WIREGUARD_ADDRESSES"]
 }

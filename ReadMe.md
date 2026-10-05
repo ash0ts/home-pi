@@ -1,6 +1,6 @@
 # Home Pi
 
-Docker Compose services for home DNS, private remote access, and optional personal tools. This repository is being rebuilt in reviewable stages. Repository tests establish code behavior; router policy, actual hardware, access controls, DNS coverage, and recovery still need checks on the Pi and representative clients.
+Docker Compose services for home DNS, private remote access, and optional personal tools. Core services are Pi-hole, Tailscale and Homer; new installs also select Uptime Kuma. Repository tests establish code behavior; router policy, actual hardware, access controls, DNS coverage, and recovery still need checks on the Pi and representative clients.
 
 Pi-hole filters DNS requests that reach it. Selecting Pi-hole as a resolver does not send ordinary browsing traffic through a VPN, guarantee every device uses that resolver, or block every ad. Tailscale remote access, subnet routing, exit nodes, and optional browser VPN routing are separate features. A public-IP check on the host cannot prove browser or household traffic routing.
 
@@ -48,7 +48,7 @@ Choose DNS continuity explicitly: an independent second filtered resolver, or a 
 ./scripts/validate.sh
 ```
 
-No live deployments, network guarantees, restore drills, or household resource measurements are implied by those checks. Keep private observations in ignored `local/` and use the provided runbooks as they land.
+No live deployments, network guarantees, restore drills, or household resource measurements are implied by those checks. Keep private observations in ignored `local/` and follow the linked runbooks.
 
 ## Readiness and configuration
 
@@ -67,3 +67,7 @@ Encrypted backups and fresh-target restores are available through `scripts/backu
 `./pi modules` lists the catalog and enabled selection. `./pi plan --enable health` validates the model and shows its services, routes, mounts, and resource settings. For a new module, fetch its reviewed images with `./pi pull health`, then run `./pi enable health`. `./pi disable health` stops its services and removes its owned routes while preserving data and backups. Core DNS and remote access are not restarted. First-run application enrollment and monitor registration remain explicit pending steps.
 
 For a new install, `./pi pull` fetches all selected images before `./pi start`. An existing installation uses the backed-up update procedure; image downloads alone do not change running containers. Direct raw Compose applies to the root/core model only. For external storage, declare and verify the actual expected mount in `local/storage.json` before enabling dependent modules.
+
+See [reviewed updates](docs/updates.md) for `./pi update`, explicit Watchtower retirement, pinned-image changes, and recovery after a failed migration.
+
+The optional [reading module](modules/reading/README.md) adds FreshRSS. The [browser module](modules/browser/README.md) pairs Webtop with Gluetun; VPN fault verification remains a live gate. See [operations](docs/operations.md) for Homer links, native Kuma notifications and resource checks, and [validation evidence](docs/implementation-status.md) for what was actually tested.

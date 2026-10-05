@@ -1,9 +1,46 @@
 """Validate only the services selected in the rendered Compose model."""
+import base64
+import binascii
+import ipaddress
 import os
 import re
 from pathlib import Path
 from configure import valid_app_key
 from lib.config import ROOT, ConfigError
+from lib.recovery import private_file
+
+
+def active_file_secrets(model, services=None):
+    """Return only referenced Compose secrets, after checking private source files."""
+    selected = set(model.get('services', {})) if services is None else set(services)
+    names = {item if isinstance(item, str) else item['source']
+             for name, spec in model.get('services', {}).items() if name in selected
+             for item in spec.get('secrets', [])}
+    result = {}
+    for name in sorted(names):
+        spec = model.get('secrets', {}).get(name, {})
+        if not isinstance(spec.get('file'), str) or not spec['file'] or spec.get('external'):
+            raise ConfigError('Active Compose secrets must use private file sources so they can be backed up.')
+        path = Path(spec['file'])
+        if not path.is_absolute():
+            path = ROOT / path
+        private_file(path, 'Active Compose secret source')
+        result[name] = path
+    return result
+
+
+def validate_browser_vpn(env, model, secrets):
+    if 'gluetun' not in model.get('services', {}):
+        return
+    try:
+        key = secrets['browser_wireguard_private_key'].read_bytes().strip()
+        if len(base64.b64decode(key, validate=True)) != 32:
+            raise ValueError()
+        address = env.get('WIREGUARD_ADDRESSES', '')
+        if '/' not in address or ipaddress.ip_interface(address).version != 4:
+            raise ValueError()
+    except (KeyError, OSError, ValueError, binascii.Error):
+        raise ConfigError('Browser VPN requires a private base64 WireGuard key encoding 32 bytes and its actual IPv4 interface CIDR in WIREGUARD_ADDRESSES. Existing credentials were preserved.') from None
 
 
 def check_compose_version(value):

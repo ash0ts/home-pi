@@ -302,6 +302,8 @@ def validate(selection, probe_services=(), *, env_override=None, model_loader=No
             if len([port for port in ports if port.get("protocol", "tcp") == "tcp"]) != 1:
                 raise ConfigError(f"Service {service} access must resolve to exactly one TCP backend in Compose.")
     if runtime_checks:
+        from service_config import active_file_secrets, validate_browser_vpn
+        validate_browser_vpn(env, model, active_file_secrets(model))
         validate_storage(model)
     for (host, port, protocol), service in listeners.items():
         if not runtime_checks or service not in probe_services:

@@ -1,79 +1,59 @@
-# Implementation and deployment evidence
+# Delivery and validation
 
-Prepared 2026-10-05 from the supplied implementation plan. This is a delivery
-ledger, not a security certification. **No live deployment is authorized or
-verified by this repository work.** Actual Pi/router hardware, network, accounts,
-containers, and recovery are unavailable in the development workspace.
+Implemented from the supplied plan on 2026-10-05, starting at
+`e7dd701654a4184ae31bb7ea527ac7a90d917ade`. The user requested a leaner stack:
+seven dependent PRs, with native application configuration and manual operations
+instead of custom portal, notification and measurement frameworks.
 
-Update each layer with its commit/PR, exact checks actually run, and unresolved
-gate when delivered. Do not mark a gate complete from code presence alone. The
-original plan reviewed `e7dd701654a4184ae31bb7ea527ac7a90d917ade`; implementation
-must reconcile current HEAD and preserve local/runtime state.
+| Layer | Repository change |
+| --- | --- |
+| 1 | Deterministic private configuration, canonical Compose, inventory and home baseline runbooks |
+| 2 | Current service settings and scoped, redacted readiness checks |
+| 3 | Explicit service selection and owned private Tailscale HTTPS routes |
+| 4 | Encrypted restic backups and fresh-target quarantine restore |
+| 5 | Thin `pi` CLI and optional Compose modules with declared state/access |
+| 6 | Immutable ARM64 images, backed-up scoped updates, CI and proposed dependency updates |
+| 7 | Optional FreshRSS and browser VPN configuration, bounded logs and concise operating procedures |
 
-## Planned stack and acceptance gates
+E2's dashboard and notifications use Homer and Kuma's native configuration.
+There is no generated portal, custom alert daemon, monitor database editor or
+measurement command. E4 file sync and E5 home automation remain deferred until
+there is a concrete folder/device need. Optional applications stay disabled
+until selected; new installations select core plus Uptime Kuma.
 
-| Layer | Plan unit | Repository deliverable | Gate that remains live until observed |
-| --- | --- | --- | --- |
-| 1 | PR 1 + H0 | Deterministic private setup, canonical Compose, fixtures/CI, baseline inventory and runbooks | Preserve installed project/mounts/secrets; actual host preflight and H0 owner review |
-| 2 | PR 2 | Correct settings and redacted doctor with scopes/status/time | Effective Pi-hole settings; TCP/UDP fixture; retained Tailscale identity and application state |
-| 3 | PR 3 | Selection/profiles and explicit private access policy | Trusted/denied LAN, guest/IoT, tailnet, external; IPv4/IPv6; direct and proxy paths; reboot |
-| 4 | PR 4 | Encrypted backup, state inventory, explicit isolated restore | All applicable bind/named-volume state restored and application data verified |
-| 5 | E1 | Thin CLI and validated module contract; one existing service extracted | Enable/disable/re-enable preserves data and core container IDs; disposable module restore |
-| 6 | PR 5 | Verified immutable images, reviewed updates, image/data rollback | Existing Watchtower stopped; failed update and matching data recovery; OS/router procedure |
-| 7 | E2 | Portal/routes and actionable alert tooling/runbooks | HTTPS/reboot persistence, monitor registration, failure/recovery delivery and freshness |
-| 8 | E3 | Disabled-by-default FreshRSS SQLite reading module | Refresh/read/starred state, OPML export, recreation and backup restore |
-| 9 | PR 6 | Optional isolated browser VPN and fault-test runbook | Actual browser and namespace IPv4/IPv6/DNS under startup failure/loss/restart/recreation |
-| 10 | PR 7 | Bounded workloads/logs and measurement procedure | Real hardware baseline, DNS under load, backup schedule, proposed 24-hour soak |
+## Evidence actually obtained
 
-The table describes delivery order and gates, not an assertion that later code
-already exists. Core plus Uptime Kuma is the proposed new-install standard;
-existing installations retain their selection. E3 may be developed and tested
-in isolation while H0 is pending; live expansion waits for baseline review.
-Browser VPN work is independent of reading and other optional applications.
+- Behavioral tests use temporary configuration and fake external commands; real
+  Compose tests render dummy values and validate module ownership/state/access.
+- Shell syntax, ShellCheck, shfmt, YAML lint and secret scanning are CI checks.
+  `config/images.lock.json` records reviewed release tags, exact digests and
+  ARM64 child manifests; CI rechecks runnable references against registries.
+- Disposable ARM64 Docker checks verified Pi-hole DNS/listeners/effective
+  upstreams, Homer startup, and FreshRSS SQLite/authentication/refresh.
+- FreshRSS imported a local fixture feed and OPML. Real application read/star
+  mutations and exported subscriptions survived recreation, stopped-writer
+  archive capture, encrypted local restic backup/restore, and a separate
+  restored application. SQLite integrity and numeric archive ownership passed.
+  An extension marker survived. All uniquely owned fixture resources were removed.
+- A disposable namespace fixture verified Compose waits for the owner and
+  recreating both services attaches the consumer to the new owner. This was
+  a namespace lifecycle check, not a VPN traffic test.
 
-E4 selected Syncthing folders and E5 Home Assistant/ESPHome are **deferred,
-conditional scope**: no concrete sync requirement or real device/hardware choice
-has been supplied. Do not deploy placeholder apps or claim hardware acceptance.
-Paperless, media/printer control, workflow engines, and a custom MCP service also
-remain deferred until a real workflow justifies them.
+Local restic evidence does not establish off-device recovery. Mocked failed-update
+checks do not establish a production migration or rollback. CI is the authoritative
+record of commands/results for each exact PR head.
 
-## Evidence register
+## Pending on the actual deployment
 
-| Scope | Current status | Evidence / next action |
-| --- | --- | --- |
-| Repository documents | Prepared 2026-10-05 | H0 inventory, owner steps, access/DNS drill, architecture contract are present; update implementation test evidence per layer |
-| Static and fixture checks | NOT YET RECORDED | Record exact commands/results from CI and local checks; use dummy credentials |
-| Image release and ARM64 manifests | NEEDS_CONFIGURATION | Resolve selected upstream releases/digests and record manifest checks before release |
-| Actual Pi containers/readiness | NEEDS_CONFIGURATION | No Docker/Pi observation; use doctor and service-specific acceptance on disposable/real ARM64 host |
-| Router/account/endpoint controls | NEEDS_CONFIGURATION | Owner fills ignored private inventory and performs settings review |
-| Client/network/public exposure | NEEDS_CONFIGURATION | Complete every applicable family/source/direct/proxy row in home-security.md |
-| Backup and matching-data rollback | NEEDS_CONFIGURATION | Run isolated application-state restore and failed-update drill |
-| Optional browser privacy | NEEDS_CONFIGURATION if enabled; SKIP only when disabled | Complete browser-namespace and actual-browser fault matrix; never infer from host curl |
-| Notification/monitor enrollment | NEEDS_CONFIGURATION | Configure supported destination/monitors; test failure, recovery, suppression, freshness |
-| Full-Pi outage observation | NEEDS_CONFIGURATION | Unsupported until a separate observer and actual notification delivery are tested |
-| Performance and 24-hour soak | NEEDS_CONFIGURATION | Measure actual hardware/workload; no measured performance claims yet |
+Pi/router inventory, original project/mount identity, account and client policy,
+IPv4/IPv6 exposure, permitted/denied client tests, preserved Tailscale identity,
+real off-device recovery, notifications and full-host outage observation remain
+unverified. So do browser streaming/default-seccomp compatibility, VPN fault
+behavior, actual Pi resource measurements and a 24-hour observation period.
 
-Machine-readable doctor records use `PASS`, `FAIL`, `SKIP`, or
-`NEEDS_CONFIGURATION`, a UTC observation time, automatic/manual method, scope,
-redacted evidence, and remediation. “NOT YET RECORDED” here describes the delivery
-ledger only and must not be used as a passing machine check. The explicit home
-baseline fails while required observations are missing.
-
-## Before live cutover
-
-1. Obtain deployment authorization and complete the [private inventory](home-network.example.md),
-   including project/volume identity, actual listeners and enabled services.
-2. Establish console/alternate management, DNS continuity, private config copy,
-   previous images, and verified encrypted off-device backup.
-3. Resolve applicable [home baseline](home-security.md) controls or record an
-   owner-accepted constraint and mitigation without hiding the residual gap.
-4. Validate exact desired Compose/model/secret/storage state. Apply one affected
-   service/module at a time; preserve household DNS and Tailscale access.
-5. Run application, network, recovery, and load checks in their stated scope.
-   Record failures honestly, restore matching data/images when required, and
-   keep rollback inputs until the observation period passes.
-
-Do not run a root installer as a test, use production credentials in CI, run
-untrusted PR code on a privileged personal runner, or use `down -v`/broad prune
-as maintenance shortcuts. Router, host firewall, and host VPN cutover need real
-topology and a tested recovery path.
+Before cutover, complete [home security](home-security.md), establish independent
+management and DNS continuity, retain previous images/configuration and a verified
+backup, then apply and check one scope at a time. [Operations](operations.md),
+[recovery](recovery.md), [updates](updates.md), and [browser VPN](browser-vpn.md)
+describe the remaining work. Repository implementation did not deploy to the Pi
+or change router, host firewall, VPN settings or notification destinations.
