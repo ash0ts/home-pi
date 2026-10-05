@@ -2,7 +2,7 @@
 
 The implementation stack is merged through [`262f01a`](https://github.com/ash0ts/home-pi/commit/262f01a), with 129 tests and all seven PR checks passing at handoff. The README/agent handoff is merged in [PR #9](https://github.com/ash0ts/home-pi/pull/9). See [delivery evidence](implementation-status.md). Continue the live checklist below; do not rebuild the completed tooling.
 
-**Next action:** help the owner find the Pi and confirm how to connect, then perform read-only inventory. Its address, login and existing checkout path are not known yet. Keep actual host, project and device details in ignored `local/`, not this checklist. No live deployment, network changes or notifications have been performed. The owner requested the useful-home extensions; repository preparation can proceed while hardware access is unknown.
+**Next action:** the owner confirmed the Pi is not set up yet. Follow [first boot](setup.md#if-your-pi-is-not-set-up-yet), then confirm the address/login and perform read-only inventory before deploying or changing household DNS. Its address, login and any existing checkout path are unknown. Keep actual host, project and device details in ignored `local/`, not this checklist. No live deployment, network changes or notifications have been performed. Repository extensions can be completed while hardware access is unavailable.
 
 ## Useful-home extensions
 
@@ -48,4 +48,4 @@ Use the repository [home-pi skill](../.agents/skills/home-pi/SKILL.md). A new se
 
 > Read AGENTS.md, the home-pi skill and docs/TODO.md. Verify the current branch/PR and delivery evidence, then continue the first unchecked item whose inputs and authorization are available. Keep the change small and use existing tools/runbooks. Do not repeat completed implementation or turn repository work into live deployment. Update the checklist with observed evidence and leave a concrete next action.
 
-Current handoff: the implementation baseline above is merged; locating the Pi and confirming access precedes live inventory. The owner is unsure of the connection details, so guide that step in plain language when they are ready. Finish any already requested independent repository work; do not invent tasks or add more automation while access is unavailable.
+Current handoff: the baseline above is merged; the Pi is not set up yet. Guide first boot in plain language, then confirm access before live inventory. Finish the selected repository extensions independently and leave unavailable hardware checks open. Do not request an unexplained SSH target or add more automation to fill the access gap.

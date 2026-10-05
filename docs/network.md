@@ -88,8 +88,13 @@ Keep the Pi's `--accept-dns=false` setting to avoid a resolver loop.
 6. Follow [Tailscale's Pi-hole guide](https://tailscale.com/docs/solutions/block-ads-all-devices-anywhere-using-raspberry-pi)
    to add the Pi's Tailscale address as a nameserver. Review which devices will
    accept an Override DNS change before enabling it; it can affect the whole
-   tailnet, including work devices. Test one personal client first and preserve
-   policy exceptions. Verify normal browsing, blocking, reconnection, and
+   tailnet, including work devices. A DNS grant does not select which clients
+   receive the nameserver setting. Test a manual resolver setting on one personal
+   client first. Before enabling a tailnet-wide override, use each excluded
+   client's supported DNS preference to retain its existing resolver (for CLI
+   clients, `tailscale set --accept-dns=false`); keep the Pi's setting unchanged.
+   Follow [Tailscale DNS settings](https://tailscale.com/docs/reference/dns-in-tailscale)
+   for the actual client platforms. Verify normal browsing, blocking, reconnection, and
    behavior when the Pi or home internet is unavailable.
 
 Rollback: restore the saved tailnet DNS settings so clients can resolve without

@@ -2,6 +2,25 @@
 
 Use this guide for configuration and first startup. If the Pi already runs these services, begin with [existing installations](#existing-installations). If you cannot yet connect to it, the [remaining-work checklist](TODO.md) explains where to start.
 
+## If your Pi is not set up yet
+
+For a new Pi with blank boot media, use [Raspberry Pi's first-boot guide](https://www.raspberrypi.com/documentation/computers/getting-started.html)
+and Raspberry Pi Imager. Choose a supported **64-bit Raspberry Pi OS Lite** for
+your actual hardware. Set your own hostname and login, enable SSH with your
+chosen authentication, and connect the Pi to the router by Ethernet where
+available. Keep credentials private; there is no assumed default `pi` login.
+Do not reimage an existing installation to follow this guide.
+
+Find its address in Verizon's connected-device list and connect from your own
+computer with `ssh USER@ADDRESS`, replacing both with your actual values. Keep a
+console or second working management connection available. Verify `uname -m`
+reports `aarch64`, and record hardware, storage and router details privately.
+If Git is missing, install it explicitly from the OS repositories before cloning
+(`sudo apt update`, then `sudo apt install git` on Raspberry Pi OS).
+
+Continue with the requirements and new-install steps below. Get the core apps
+working before changing household DNS or selecting Home Assistant/Syncthing.
+
 ## Requirements
 
 Deploy on a supported 64-bit ARM Linux host using a normal account that owns the checkout. Startup needs Python 3, Bash, Docker Engine with Compose 2.24.0 or newer, curl, openssl and iproute2. Static validation also needs ShellCheck. A workstation can generate configuration and run static tests without starting containers.
@@ -68,3 +87,7 @@ New installations already select health; this example is useful for a core-only 
 Managed commands include only the selected Compose fragments. Raw `docker compose` against the root file includes core services only. Image downloads do not change running containers; use the update workflow for an existing deployment.
 
 For ongoing use, follow [operations](operations.md), [access](access.md), [diagnostics](diagnostics.md) and [recovery](recovery.md). Tests and healthchecks establish their stated scope; actual client access, network policy and restores still need deployment evidence.
+
+For device profiles, guest boundaries and optional filtering while away, follow
+[network setup](network.md). It includes staged client tests and rollback;
+changing DNS and enabling an optional app are separate operations.
