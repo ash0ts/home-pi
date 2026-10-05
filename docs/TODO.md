@@ -4,7 +4,7 @@ The implementation stack is merged through [`262f01a`](https://github.com/ash0ts
 
 **Next action:** help the owner find the Pi and confirm how to connect, then perform read-only inventory. Its address, login and existing checkout path are not known yet. Keep actual host, project and device details in ignored `local/`, not this checklist. No live deployment, network changes or notifications have been authorized by this documentation PR.
 
-The owner does not need to know SSH terminology. When ready, find the Pi in the router's connected-device list, or use its local terminal: `hostname -I` shows its addresses and `whoami` shows the current username. Confirm those belong to the intended Pi and that SSH is already available before connecting. Do not guess default credentials, enable remote access or scan the network to fill this gap. If access is unavailable, keep the live checklist pending.
+The owner does not need to know SSH terminology. When ready, find the Pi in the router's connected-device list, or use its local terminal: `hostname -I` shows its addresses and `whoami` shows the current username. Confirm those belong to the intended Pi. Use a previously working saved connection if available; otherwise guide the owner through checking SSH status on the Pi before connecting. Do not guess default credentials, enable remote access or scan the network to fill this gap. If access is unavailable, keep the live checklist pending.
 
 ## Ordered checklist
 
@@ -30,4 +30,4 @@ Use the repository [home-pi skill](../.agents/skills/home-pi/SKILL.md). A new se
 
 > Read AGENTS.md, the home-pi skill and docs/TODO.md. Verify the current branch/PR and delivery evidence, then continue the first unchecked item whose inputs and authorization are available. Keep the change small and use existing tools/runbooks. Do not repeat completed implementation or turn repository work into live deployment. Update the checklist with observed evidence and leave a concrete next action.
 
-Current handoff: repository work is complete; locating the Pi and confirming access precedes live inventory. The owner is unsure of the connection details, so guide that step in plain language when they are ready. Finish independent repository work rather than inventing a deployment or adding more automation while access is unavailable.
+Current handoff: the implementation baseline above is merged; locating the Pi and confirming access precedes live inventory. The owner is unsure of the connection details, so guide that step in plain language when they are ready. Finish any already requested independent repository work; do not invent tasks or add more automation while access is unavailable.
