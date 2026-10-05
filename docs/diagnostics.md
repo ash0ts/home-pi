@@ -27,6 +27,10 @@ security claim.
 
 ## What is checked
 
+Image-native health probes are retained. Dozzle uses `/dozzle healthcheck`;
+Portainer is checked through its local HTTPS endpoint without assuming shell or
+HTTP client tools exist inside the image.
+
 - Selected containers exist and run; native/configured healthchecks are ready.
 - Local HTTP backends respond; 401/403 is liveness only, not a successful login.
   Webtop and Portainer local self-signed backend probes do not verify external

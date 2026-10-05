@@ -21,7 +21,8 @@ Repository edits, PRs and CI establish code behavior. They do not establish live
 
 | Work | Read or use |
 | --- | --- |
-| Configure/start/diagnose | `./pi --help`, `scripts/setup.py`, `scripts/doctor.py`, [diagnostics](../../../docs/diagnostics.md) |
+| Configure/start/migrate | [setup](../../../docs/setup.md), `./pi --help`, `scripts/setup.py` |
+| Diagnose | [diagnostics](../../../docs/diagnostics.md), `scripts/doctor.py` |
 | Add/change an optional service | [module contract](../../../docs/adding-a-service.md), `modules/<id>/compose.yaml` and `module.json` |
 | Private routes or app enrollment | [access](../../../docs/access.md); route registration and application login are separate checks |
 | Data recovery or image change | [recovery](../../../docs/recovery.md), [updates](../../../docs/updates.md), `config/images.lock.json` |
@@ -30,6 +31,8 @@ Repository edits, PRs and CI establish code behavior. They do not establish live
 | Browser namespace or legacy migration | [browser VPN](../../../docs/browser-vpn.md); Gluetun/Webtop form one lifecycle unit |
 
 Read only the relevant runbook and source, then make the smallest complete change. Do not copy a service into a second Compose definition, add installer branches for modules, or make automatic monitor/portal generation a prerequisite for an unrelated fix. Preserve the distinction between DNS, private access and browser egress.
+
+Keep the README approachable: explain the apps and link to the next task. Put owner-facing commands, configuration and migration details in the relevant docs; keep agent implementation guidance here. `setup.sh` and `pi` are thin dispatchers; `scripts/lib/config.py` owns checkout-relative paths, literal configuration, private writes and argv-safe Docker calls. Static validation uses dummy configuration, never an expanded production model.
 
 ## Deliver and leave a usable handoff
 
