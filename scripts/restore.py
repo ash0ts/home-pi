@@ -71,6 +71,8 @@ def restore_snapshot(snapshot_id, target, allow_local_repository=False):
     if not SNAPSHOT_RE.fullmatch(snapshot_id):
         raise ConfigError('Use an exact 64-character lowercase snapshot ID, never latest or a prefix.')
     target = Path(target).expanduser().absolute()
+    if '..' in target.parts:
+        raise ConfigError('Restore target must not contain parent traversal; use an explicit canonical quarantine path.')
     if target.exists() or target.is_symlink():
         raise ConfigError('Restore target must not exist; choose a fresh quarantine directory.')
     # Existing symlink ancestors may redirect extraction into a live data tree.

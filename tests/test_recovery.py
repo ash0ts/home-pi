@@ -109,6 +109,14 @@ class RecoveryTests(unittest.TestCase):
             return completed(json.dumps([{'id': SNAPSHOT}] if SNAPSHOT in args else []))
         self.fail('unexpected restic operation')
 
+    def test_restore_parent_traversal_rejected_before_io(self):
+        target = self.root / '.context' / '..' / 'pihole' / 'quarantine'
+        with mock.patch.object(restore, 'restic') as command:
+            with self.assertRaises(ConfigError):
+                restore.restore_snapshot(SNAPSHOT, target, True)
+            command.assert_not_called()
+        self.assertFalse((self.root / 'pihole' / 'quarantine').exists())
+
     def test_local_repository_requires_explicit_test_flag(self):
         with self.assertRaisesRegex(ConfigError, 'off-device'):
             backup.create_backup(['app'])
