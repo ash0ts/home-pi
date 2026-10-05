@@ -35,9 +35,11 @@ def validate_access(model, env):
             if port.get('host_ip') not in {'127.0.0.1', '::1', allowed}:
                 raise ConfigError('Administrative service has an undeclared or wildcard listener; use the private access policy.')
         if name == 'pihole':
+            from service_config import validate_dns_mode
             values = spec.get('environment', {})
-            if values.get('FTLCONF_webserver_port') != '127.0.0.1:8081' or values.get('FTLCONF_dns_listeningMode') != 'local':
-                raise ConfigError('Pi-hole host listeners differ from the reviewed local DNS/loopback administration policy.')
+            mode = validate_dns_mode(env)
+            if values.get('FTLCONF_webserver_port') != '127.0.0.1:8081' or str(values.get('FTLCONF_dns_listeningMode', '')).lower() != mode:
+                raise ConfigError('Pi-hole host listeners differ from the reviewed DNS/loopback administration policy.')
     return True
 
 

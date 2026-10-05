@@ -18,7 +18,8 @@ acceptance are separate; do not mark either complete using evidence from the oth
 - [ ] Select one real automation device; verify useful behavior, reconnect, state restoration and DNS capacity with Home Assistant enabled.
 - [ ] Select one personal computer/folder; verify sync, conflict/deletion behavior, independent file recovery and DNS capacity.
 
-Hardware access, automation devices and folder choices remain unknown. Native
+The owner confirmed on 2026-10-05 that the Pi is not set up yet. Hardware access,
+automation devices and folder choices remain unknown. Native
 settings and acceptance procedures are prepared; the live items remain unchecked.
 
 The owner does not need to know SSH terminology. When ready, find the Pi in the router's connected-device list, or use its local terminal: `hostname -I` shows its addresses and `whoami` shows the current username. Confirm those belong to the intended Pi. Use a previously working saved connection if available; otherwise guide the owner through checking SSH status on the Pi before connecting. Do not guess default credentials, enable remote access or scan the network to fill this gap. If access is unavailable, keep the live checklist pending.
