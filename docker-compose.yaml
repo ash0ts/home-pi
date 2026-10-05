@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   pihole:
     image: pihole/pihole:latest
@@ -12,8 +10,9 @@ services:
       FTLCONF_webserver_api_password: ${PIHOLE_PASSWORD}
       FTLCONF_dns_dnssec: "true"
       FTLCONF_dns_listeningMode: "all"
-      # Upstream DNS resolvers – these go through Mullvad once VPN is active
-      PIHOLE_DNS_: ${PIHOLE_DNS:-"1.1.1.1;1.0.0.1"}
+      # DNS filtering does not change host or client traffic routing.
+      FTLCONF_dns_upstreams: ${PIHOLE_DNS:-1.1.1.1;1.0.0.1}
+      FTLCONF_misc_etc_dnsmasq_d: ${PIHOLE_CUSTOM_DNSMASQ:-false}
     volumes:
       - ./pihole/etc-pihole:/etc/pihole
       - ./pihole/etc-dnsmasq.d:/etc/dnsmasq.d
@@ -32,7 +31,10 @@ services:
     environment:
       TS_STATE_DIR: /var/lib/tailscale
       TS_AUTHKEY: ${TS_AUTHKEY:-} # Generate at https://login.tailscale.com/admin/settings/keys
-      TS_EXTRA_ARGS: "--accept-routes --accept-dns=false"
+      TS_AUTH_ONCE: "true"
+      TS_EXTRA_ARGS: "--accept-dns=false"
+      TS_ENABLE_HEALTH_CHECK: "true"
+      TS_LOCAL_ADDR_PORT: "127.0.0.1:9002"
       TS_USERSPACE: "false"
     restart: unless-stopped
 
@@ -46,12 +48,6 @@ services:
     environment:
       - INIT_ASSETS=1
       - TZ=${TZ}
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
     restart: unless-stopped
 
   speedtest-tracker:
@@ -71,12 +67,6 @@ services:
       PRUNE_RESULTS_OLDER_THAN: 180 # keep 6 months of history (Pi 5 has plenty of storage)
     volumes:
       - ./speedtest-tracker/config:/config
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
     restart: unless-stopped
 
   netdata:
@@ -98,12 +88,6 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /etc/os-release:/host/etc/os-release:ro
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:19999/api/v1/info"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
     restart: unless-stopped
 
   portainer:
@@ -114,20 +98,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "-q",
-          "--spider",
-          "--no-check-certificate",
-          "https://localhost:9443",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
     restart: unless-stopped
 
   webtop:
@@ -147,12 +117,6 @@ services:
     shm_size: "4g" # Pi 5 16GB can handle more for smoother browsing
     security_opt:
       - seccomp:unconfined # required for Docker-in-Docker if needed
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
     restart: unless-stopped
 
   # ===== Management & Monitoring Additions =====
@@ -164,12 +128,6 @@ services:
       - "0.0.0.0:3001:3001" # http://PI-IP:3001
     volumes:
       - ./uptime-kuma/data:/app/data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
     restart: unless-stopped
 
   watchtower:
@@ -194,8 +152,7 @@ services:
     environment:
       - TZ=${TZ}
     healthcheck:
-      test:
-        ["CMD", "wget", "-q", "--spider", "http://localhost:8080/healthcheck"]
+      test: ["CMD", "/dozzle", "healthcheck"]
       interval: 30s
       timeout: 10s
       retries: 3

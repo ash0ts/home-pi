@@ -49,3 +49,11 @@ Choose DNS continuity explicitly: an independent second filtered resolver, or a 
 ```
 
 No live deployments, network guarantees, restore drills, or household resource measurements are implied by those checks. Keep private observations in ignored `local/` and use the provided runbooks as they land.
+
+## Readiness and configuration
+
+`./scripts/doctor.sh --json` reports redacted observations; `--home-baseline` additionally fails while essential home controls are unverified. Initial startup uses bounded Compose readiness followed by doctor. A running Tailscale process awaiting enrollment is reported separately from a stopped container. Missing probes or a disabled optional service are not reported as a successful live check.
+
+Pi-hole v6 uses `FTLCONF_dns_upstreams`. Settings supplied through `FTLCONF_*` are controlled by configuration and cannot also be changed in its UI. Review existing `pihole/etc-dnsmasq.d` files and set `PIHOLE_CUSTOM_DNSMASQ=true` only when they must remain effective. Doctor compares the effective upstreams and separately tests declared TCP/UDP DNS and a controlled block fixture. [Pi-hole documents these environment semantics](https://docs.pi-hole.net/docker/configuration/).
+
+Preserve Tailscale state and enroll once through an interactive session or a short-lived key; `TS_AUTH_ONCE=true` reuses existing enrollment. No route acceptance, exit node, or subnet advertisement is added. Speedtest and Webtop require matching PUID/PGID ownership before recreation. Image-native probes are retained; Dozzle uses its native healthcheck and Portainer is checked externally without assuming tools exist in its image.

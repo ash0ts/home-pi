@@ -11,7 +11,8 @@ import shutil
 import subprocess
 import sys
 
-from configure import configure, valid_app_key
+from configure import configure
+from service_config import check_compose_version, validate_services, check_ownership, prepare_bind_directories
 from lib.config import ConfigError, ROOT, command_lock, docker, load_env, reject_root, run_compose
 
 
@@ -26,14 +27,14 @@ def preflight():
         if not shutil.which(name):
             raise ConfigError(f"Missing dependency: {name}. Run the explicit install-deps stage or install it for your OS.")
     env = load_env()
-    if not valid_app_key(env.get("SPEEDTEST_APP_KEY", "")):
-        raise ConfigError("Invalid SPEEDTEST_APP_KEY. Run configure and follow its migration instructions; startup stopped.")
     if (ROOT / ".env").stat().st_mode & 0o077:
         raise ConfigError(".env must be mode 0600. Run ./setup.sh configure to repair private file permissions.")
     docker("info", "--format", "{{.OSType}}/{{.Architecture}}")
-    docker("compose", "version")
+    check_compose_version(docker("compose", "version", "--short").stdout)
     run_compose("config", "--quiet")
     model = json.loads(run_compose("config", "--format", "json").stdout)
+    validate_services(env, model["services"])
+    check_ownership(env, model["services"])
     if any(service.get("network_mode") == "host" and "tailscale" in name for name, service in model["services"].items()):
         if not Path("/dev/net/tun").exists():
             raise ConfigError("/dev/net/tun is missing. Configure the host TUN device before starting Tailscale.")
@@ -60,6 +61,8 @@ def preflight():
             conflicts.add(f"{fields[0]}/{match[1]}")
     if conflicts:
         raise ConfigError("Ports already listening: " + ", ".join(sorted(conflicts)) + ". Identify their owners before starting; no listeners were changed.")
+
+    return model, env
 
 
 def install_deps():
@@ -103,8 +106,12 @@ def main(argv=None):
             if args.command == "install-deps":
                 install_deps()
             elif args.command == "start":
-                preflight()
-                run_compose("up", "-d", "--pull", "never")
+                model, env = preflight()
+                prepare_bind_directories(model, env)
+                run_compose("up", "-d", "--pull", "never", "--wait", "--wait-timeout", "120", timeout=150)
+                result = subprocess.run([sys.executable, "-B", str(ROOT / "scripts/doctor.py"), "--wait", "120"], check=False)
+                if result.returncode:
+                    raise ConfigError("Services started, but readiness is incomplete. Follow doctor remediation; no whole-stack shutdown was performed.")
                 print("Selected services started using local images. Run doctor and complete the live network checks before relying on them.")
     except (ConfigError, OSError, subprocess.SubprocessError, ValueError) as exc:
         if isinstance(exc, ConfigError):
