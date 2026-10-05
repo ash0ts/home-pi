@@ -1,13 +1,16 @@
 # Delivery and validation
 
-Continue from the ordered [remaining-work checklist](TODO.md); this document records the delivered baseline and its evidence.
+Continue from the [remaining-work checklist](TODO.md). Runtime implementation is
+merged through [`8670510`](https://github.com/ash0ts/home-pi/commit/8670510).
+The owner confirmed the Pi is not set up yet; nothing has been deployed to the
+household. This document separates repository delivery from live acceptance.
 
 ## Useful-home follow-up
 
-Delivered as [network setup (#10)](https://github.com/ash0ts/home-pi/pull/10),
+Merged on 2026-10-05 as [network setup (#10)](https://github.com/ash0ts/home-pi/pull/10),
 [Home Assistant (#11)](https://github.com/ash0ts/home-pi/pull/11), and
-[Syncthing (#12)](https://github.com/ash0ts/home-pi/pull/12). CI on each PR is the
-authoritative check record; these changes do not deploy to the household.
+[Syncthing (#12)](https://github.com/ash0ts/home-pi/pull/12). Both new modules stay
+disabled until selected. These changes do not deploy to the household.
 
 The owner selected network setup, remote DNS, automation and selected-folder sync
 on 2026-10-05. The [network guide](network.md) prepares native device profiles,
@@ -22,12 +25,10 @@ loopback backend, private enrollment/proxy instructions and full `/config` backu
 classification. Its reviewed 2026.9.4 multi-platform manifest and ARM64 child were
 read from the registry; runtime/device behavior remains a separate live gate.
 
-Local follow-up validation: 137 tests ran successfully, with the existing restic
-encryption fixture skipped because restic is unavailable here; static Compose/shell/image
-checks passed. A disposable ARM64 fixture on an internal Docker network ran the
+A disposable ARM64 fixture on an internal Docker network ran the
 Home Assistant HTTP probe and retained its configuration through recreation.
 The fixture did not test host forwarding, owner login, real devices or restore;
-its exact containers/network were removed. CI runs the restic fixture separately.
+its exact containers/network were removed.
 
 The optional `files` module adds Syncthing 2.1.5 with a non-root process, private
 GUI, no published incoming sync ports, disabled native upgrades and complete
@@ -43,8 +44,26 @@ mobile support, guest isolation, conflict acceptance or a real Pi capacity test.
 
 The complete local suite passed all 143 tests with no skips after using the
 existing test-only restic binary for the encrypted recovery fixture. Static
-validation, YAML lint and all 13 registry ARM64 checks passed. The owner confirmed the Pi is not set up
-yet. Live checklist items remain pending, and both new modules remain opt-in.
+validation, YAML lint and all 13 registry ARM64 checks passed. Live checklist
+items remain pending.
+
+### CI and merge record
+
+The owner explicitly requested merging after local verification while the final
+CI jobs were queued. GitHub merged all three PRs without a branch-rule bypass.
+The [initial Syncthing revision's CI](https://github.com/ash0ts/home-pi/actions/runs/37363763773)
+passed all 143 tests and static/registry checks. That result applies to its exact
+head (`91f5dcc`), before the documentation evidence update; it is not a PASS for
+every final PR head.
+
+The [Home Assistant run](https://github.com/ash0ts/home-pi/actions/runs/37363758581)
+later ended without executing steps because GitHub could not acquire a hosted
+runner. This is an infrastructure failure, with no test result. Consult each
+PR's checks and the [merged-revision run](https://github.com/ash0ts/home-pi/actions/runs/37364909056)
+for current results. Do not infer successful CI or household acceptance from
+merge status alone.
+
+## Original baseline
 
 Implemented from the supplied plan on 2026-10-05, starting at
 `e7dd701654a4184ae31bb7ea527ac7a90d917ade`. The user requested a leaner stack:
@@ -63,12 +82,12 @@ instead of custom portal, notification and measurement frameworks.
 
 E2's dashboard and notifications use Homer and Kuma's native configuration.
 There is no generated portal, custom alert daemon, monitor database editor or
-measurement command. At baseline delivery, E4 file sync and E5 home automation were deferred until
-there was a concrete folder/device need. The follow-up above prepares the selected
-modules; actual pairing and acceptance still require the owner’s devices. Optional applications stay disabled
-until selected; new installations select core plus Uptime Kuma.
+measurement command. At baseline delivery, E4 file sync and E5 home automation
+were deferred. The follow-up above delivers the selected modules; actual pairing
+and acceptance still require the owner's devices. Optional applications stay
+disabled until selected; new installations select core plus Uptime Kuma.
 
-## Evidence actually obtained
+### Baseline evidence
 
 - Behavioral tests use temporary configuration and fake external commands; real
   Compose tests render dummy values and validate module ownership/state/access.

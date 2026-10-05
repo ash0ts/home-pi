@@ -96,7 +96,8 @@ Measure bounded UDP/TCP DNS queries from the same owned client to the declared
 resolver, using a fixed permitted name and consistent cache conditions.
 
 Compare idle, normal browser use, one speed test, and one backup separately;
-only combine loads after individual results pass. Record DNS failures/latency,
+include a Home Assistant workload or Syncthing indexing/transfer when selected.
+Only combine loads after individual results pass. Record DNS failures/latency,
 available RAM, swap activity, filesystem free space, temperature and throttling.
 Proposed headroom is 25% available RAM and 20% free space on each data filesystem;
 these are targets to validate, not measured guarantees. Protect DNS and remote
@@ -110,5 +111,8 @@ mounted disks, DNS UDP/TCP/filtering, tailnet identity, private HTTPS, allowed a
 denied clients, schedules, and recovery notifications. Keep timestamped evidence
 privately. Live load baselines, a 24-hour observation, full-host outage detection,
 phone delivery, and replacement-host recovery remain unverified until performed.
-Browser VPN privacy remains a separate live gate. E4 selected file sync and E5
-electronics/home automation stay deferred until a concrete folder/device need.
+Browser VPN privacy remains a separate live gate. The optional
+[home automation](../modules/home/README.md) and [file sync](../modules/files/README.md)
+modules are delivered; actual device/folder choices, restoration and measured
+workload acceptance remain pending. Maintain their native retention settings and
+add dashboard links/monitors only after their private routes work.
