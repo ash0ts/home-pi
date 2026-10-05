@@ -236,17 +236,23 @@ def validate_storage(model):
         raise ConfigError("Invalid local/storage.json; expected mounts with absolute path and optional integer device ID.") from exc
 
 
-def validate(selection, probe_services=()):
+def validate(selection, probe_services=(), *, env_override=None, model_loader=None, runtime_checks=True):
+    """Check real module semantics with optional isolated static inputs.
+
+    CI supplies dummy environment values and a Compose loader using only its
+    temporary env file. Runtime callers retain the private-config/storage checks.
+    """
     entries = catalog()
     ordered = resolve(selection, entries)
     metadata = metadata_for_services(ordered)
-    env = load_env()
+    env = load_env() if env_override is None else dict(env_override)
+    render = _model if model_loader is None else model_loader
     for name in ordered:
         if any(not env.get(key) for key in entries[name]["secrets"]):
             raise ConfigError(f"Module {name} is missing required private settings; review its secrets list. No values were printed.")
     owners = {}
     for name, files in [("core", [ROOT / "docker-compose.yaml"]), *[(name, [ROOT / "modules" / name / "compose.yaml"]) for name in ordered]]:
-        fragment = _model(files, consistency=False).get("services", {})
+        fragment = render(files, consistency=False).get("services", {})
         services = set(fragment)
         if any(spec.get("env_file") for spec in fragment.values()):
             raise ConfigError("Module service env_file is unsupported; use declared private root .env settings.")
@@ -256,7 +262,7 @@ def validate(selection, probe_services=()):
             if service in owners:
                 raise ConfigError("Duplicate service ownership across Compose fragments; silent merges are refused.")
             owners[service] = name
-    model = _model(compose_files(ordered))
+    model = render(compose_files(ordered))
     services = model.get("services", {})
     if set(services) != set(owners):
         raise ConfigError("The merged service set differs from declared ownership.")
@@ -295,9 +301,10 @@ def validate(selection, probe_services=()):
             ports = _ports_for_service(service, services)
             if len([port for port in ports if port.get("protocol", "tcp") == "tcp"]) != 1:
                 raise ConfigError(f"Service {service} access must resolve to exactly one TCP backend in Compose.")
-    validate_storage(model)
+    if runtime_checks:
+        validate_storage(model)
     for (host, port, protocol), service in listeners.items():
-        if service not in probe_services:
+        if not runtime_checks or service not in probe_services:
             continue
         family = socket.AF_INET6 if ":" in host else socket.AF_INET
         kind = socket.SOCK_STREAM if protocol == "tcp" else socket.SOCK_DGRAM

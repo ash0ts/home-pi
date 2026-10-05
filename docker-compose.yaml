@@ -1,6 +1,6 @@
 services:
   pihole:
-    image: pihole/pihole:latest
+    image: pihole/pihole:2026.09.0@sha256:5b9c8cf51de7d6d3f2240dbe72baf5f06e1fd39cb4d77a99fab4fa13e23bd1be
     container_name: pihole
     hostname: ${PIHOLE_HOSTNAME:-pihole}
     domainname: ${PIHOLE_DOMAIN:-lan}
@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
 
   tailscale:
-    image: tailscale/tailscale:latest
+    image: tailscale/tailscale:v1.102.5@sha256:c507f3a2a6ab1cabd8d809b98edeb41edbd5c3fb6ad9632ffd098b4c7d0b4065
     container_name: tailscale
     network_mode: "host"
     cap_add:
@@ -40,7 +40,7 @@ services:
     restart: unless-stopped
 
   homer:
-    image: b4bz/homer:latest
+    image: b4bz/homer:v26.08.3@sha256:febc8967c9f7648ec37633ef3ae1ec90dbe8b7c46fecab80299f08f05be7ecb6
     container_name: homer
     ports:
       - "${ADMIN_BIND_IP:-127.0.0.1}:8080:8080" # http://PI-IP:8080
@@ -49,17 +49,4 @@ services:
     environment:
       - INIT_ASSETS=1
       - TZ=${TZ}
-    restart: unless-stopped
-
-  watchtower:
-    profiles: ["legacy-updater"]
-    image: containrrr/watchtower:latest
-    container_name: watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - TZ=${TZ}
-      - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_SCHEDULE=0 0 4 * * * # 6-field cron: sec min hour day month weekday (4 AM daily)
-      - WATCHTOWER_ROLLING_RESTART=true
     restart: unless-stopped
