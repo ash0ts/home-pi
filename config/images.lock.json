@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-10-05T16:49:26.861954+00:00",
+  "method": "Registry manifest inspection; ARM64 child manifests confirmed. Runtime evidence is separate.",
+  "images": [
+    {
+      "service": "pihole",
+      "repository": "pihole/pihole",
+      "tag": "2026.09.0",
+      "digest": "sha256:5b9c8cf51de7d6d3f2240dbe72baf5f06e1fd39cb4d77a99fab4fa13e23bd1be",
+      "reference": "pihole/pihole:2026.09.0@sha256:5b9c8cf51de7d6d3f2240dbe72baf5f06e1fd39cb4d77a99fab4fa13e23bd1be",
+      "arm64_digest": "sha256:0759b8cbc772f7c33c48effb08d6f069d84551a43a011766cfa8c407f09b218e",
+      "platforms": [
+        "linux/386",
+        "linux/arm64",
+        "linux/amd64",
+        "linux/arm/v7",
+        "linux/arm/v6",
+        "linux/riscv64"
+      ],
+      "documentation": [
+        "https://docs.pi-hole.net/docker/upgrading/v5-v6/",
+        "https://docs.pi-hole.net/ftldns/configfile/"
+      ]
+    },
+    {
+      "service": "tailscale",
+      "repository": "tailscale/tailscale",
+      "tag": "v1.102.5",
+      "digest": "sha256:c507f3a2a6ab1cabd8d809b98edeb41edbd5c3fb6ad9632ffd098b4c7d0b4065",
+      "reference": "tailscale/tailscale:v1.102.5@sha256:c507f3a2a6ab1cabd8d809b98edeb41edbd5c3fb6ad9632ffd098b4c7d0b4065",
+      "arm64_digest": "sha256:472c549d2ef8cebc000de2c8a94061bbdc864d2454177b2ada713262475449ef",
+      "platforms": [
+        "linux/arm64",
+        "linux/arm/v7",
+        "linux/386",
+        "linux/amd64"
+      ],
+      "documentation": [
+        "https://tailscale.com/docs/features/containers/docker/docker-params"
+      ]
+    },
+    {
+      "service": "homer",
+      "repository": "b4bz/homer",
+      "tag": "v26.08.3",
+      "digest": "sha256:febc8967c9f7648ec37633ef3ae1ec90dbe8b7c46fecab80299f08f05be7ecb6",
+      "reference": "b4bz/homer:v26.08.3@sha256:febc8967c9f7648ec37633ef3ae1ec90dbe8b7c46fecab80299f08f05be7ecb6",
+      "arm64_digest": "sha256:6661f76eb6f5b08d0964697759c552f8f098e092c73439b1ff59006027a092e9",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm/v7",
+        "linux/arm/v6",
+        "linux/arm64"
+      ],
+      "documentation": [
+        "https://github.com/bastienwirtz/homer",
+        "https://github.com/bastienwirtz/homer/blob/v26.08.3/Dockerfile"
+      ]
+    },
+    {
+      "service": "speedtest",
+      "repository": "lscr.io/linuxserver/speedtest-tracker",
+      "tag": "v1.15.0-ls174",
+      "digest": "sha256:3f8a2d06703bde3a6d04dcc8178fcd6251b601ce3b8b52958779d5335b5719d1",
+      "reference": "lscr.io/linuxserver/speedtest-tracker:v1.15.0-ls174@sha256:3f8a2d06703bde3a6d04dcc8178fcd6251b601ce3b8b52958779d5335b5719d1",
+      "arm64_digest": "sha256:e4c7c42b65868489aace7a1f4afa108ca4435162428db1898edb11a892f5cb78",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "documentation": [
+        "https://docs.linuxserver.io/images/docker-speedtest-tracker/",
+        "https://docs.speedtest-tracker.dev/security/encryption"
+      ]
+    },
+    {
+      "service": "netdata",
+      "repository": "netdata/netdata",
+      "tag": "v2.12.0",
+      "digest": "sha256:1e50cc0b11f0941a2a4d8b8592a71d67a8777a4a6ddefbbd024b4725543e4b19",
+      "reference": "netdata/netdata:v2.12.0@sha256:1e50cc0b11f0941a2a4d8b8592a71d67a8777a4a6ddefbbd024b4725543e4b19",
+      "arm64_digest": "sha256:05fcd0c0010bf9ba878ed6ceaa90eb404e5452f0fcbafa1d086816cfde2cc5bf",
+      "platforms": [
+        "linux/arm/v7",
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "documentation": [
+        "https://learn.netdata.cloud/docs/netdata-agent/installation/docker"
+      ]
+    },
+    {
+      "service": "portainer",
+      "repository": "portainer/portainer-ce",
+      "tag": "2.45.1",
+      "digest": "sha256:4d616db18cfeb5dd41a69c0958bc825c84483ea9cde1106eb82a5d26f3bd8b0e",
+      "reference": "portainer/portainer-ce:2.45.1@sha256:4d616db18cfeb5dd41a69c0958bc825c84483ea9cde1106eb82a5d26f3bd8b0e",
+      "arm64_digest": "sha256:9836dba183366d42091cc071f22c198a9526e2ec73975894557ee62d7d852d1f",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64",
+        "linux/arm/v7",
+        "linux/ppc64le"
+      ],
+      "documentation": [
+        "https://docs.portainer.io/start/upgrade"
+      ]
+    },
+    {
+      "service": "webtop",
+      "repository": "lscr.io/linuxserver/webtop",
+      "tag": "debian-xfce-d086b04b-ls215",
+      "digest": "sha256:918aa840a4374a2eb1ab5e05aebb7c869a6fb4563eb2015b829c08fa46725b2c",
+      "reference": "lscr.io/linuxserver/webtop:debian-xfce-d086b04b-ls215@sha256:918aa840a4374a2eb1ab5e05aebb7c869a6fb4563eb2015b829c08fa46725b2c",
+      "arm64_digest": "sha256:066d929d36faa0586cd96636bbf0e2f010cb703e3286ee65f6cef7133024c1db",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "documentation": [
+        "https://docs.linuxserver.io/images/docker-webtop/"
+      ]
+    },
+    {
+      "service": "uptime-kuma",
+      "repository": "louislam/uptime-kuma",
+      "tag": "2.5.5",
+      "digest": "sha256:c74379ac4509ce2d2c2633f509e67003ee2e45b6e995c5e43fc101f45a0e1fbe",
+      "reference": "louislam/uptime-kuma:2.5.5@sha256:c74379ac4509ce2d2c2633f509e67003ee2e45b6e995c5e43fc101f45a0e1fbe",
+      "arm64_digest": "sha256:91b9ed75424d8c638124e5a04f3012c34b0fbe06e928191e576bdbc362a2b3ad",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64",
+        "linux/arm/v7"
+      ],
+      "documentation": [
+        "https://github.com/louislam/uptime-kuma/releases/tag/2.5.5",
+        "https://github.com/louislam/uptime-kuma/wiki/Migration-From-v1-To-v2",
+        "https://github.com/louislam/uptime-kuma/blob/2.5.5/extra/healthcheck.go"
+      ]
+    },
+    {
+      "service": "dozzle",
+      "repository": "amir20/dozzle",
+      "tag": "v11.2.0",
+      "digest": "sha256:db7e19fd36189823c66239894e821561cb201248af35362ec6d39a08e23ff88b",
+      "reference": "amir20/dozzle:v11.2.0@sha256:db7e19fd36189823c66239894e821561cb201248af35362ec6d39a08e23ff88b",
+      "arm64_digest": "sha256:b2d81b66a84cbca9a59bd89349987b1827481b7651f3f2c601a1e25cb6d4904b",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm/v6",
+        "linux/arm/v7",
+        "linux/arm64"
+      ],
+      "documentation": [
+        "https://dozzle.dev/guide/healthcheck",
+        "https://github.com/amir20/dozzle/blob/v11.2.0/docs/guide/healthcheck.md"
+      ]
+    }
+  ]
+}

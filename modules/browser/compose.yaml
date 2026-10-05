@@ -1,6 +1,6 @@
 services:
   webtop:
-    image: lscr.io/linuxserver/webtop:debian-xfce
+    image: lscr.io/linuxserver/webtop:debian-xfce-d086b04b-ls215@sha256:918aa840a4374a2eb1ab5e05aebb7c869a6fb4563eb2015b829c08fa46725b2c
     container_name: webtop
     ports:
       - "${ADMIN_BIND_IP:-127.0.0.1}:3002:3001" # https://PI-IP:3002
@@ -17,8 +17,6 @@ services:
       - seccomp:unconfined # required for Docker-in-Docker if needed
     networks: [browser]
     restart: unless-stopped
-
-  # ===== Management & Monitoring Additions =====
 
 networks:
   browser:

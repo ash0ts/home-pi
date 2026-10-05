@@ -1,6 +1,6 @@
 services:
   portainer:
-    image: portainer/portainer-ce:latest
+    image: portainer/portainer-ce:2.45.1@sha256:4d616db18cfeb5dd41a69c0958bc825c84483ea9cde1106eb82a5d26f3bd8b0e
     container_name: portainer
     ports:
       - "${ADMIN_BIND_IP:-127.0.0.1}:9443:9443" # https://PI-IP:9443
@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
 
   dozzle:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:v11.2.0@sha256:db7e19fd36189823c66239894e821561cb201248af35362ec6d39a08e23ff88b
     container_name: dozzle
     ports:
       - "${ADMIN_BIND_IP:-127.0.0.1}:8888:8080" # http://PI-IP:8888

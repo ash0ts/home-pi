@@ -1,6 +1,6 @@
 services:
   speedtest-tracker:
-    image: lscr.io/linuxserver/speedtest-tracker:latest
+    image: lscr.io/linuxserver/speedtest-tracker:v1.15.0-ls174@sha256:3f8a2d06703bde3a6d04dcc8178fcd6251b601ce3b8b52958779d5335b5719d1
     container_name: speedtest-tracker
     ports:
       - "${ADMIN_BIND_IP:-127.0.0.1}:8765:80" # http://PI-IP:8765
@@ -21,7 +21,7 @@ services:
 
   netdata:
     init: true
-    image: netdata/netdata:latest
+    image: netdata/netdata:v2.12.0@sha256:1e50cc0b11f0941a2a4d8b8592a71d67a8777a4a6ddefbbd024b4725543e4b19
     container_name: netdata
     hostname: ${NETDATA_HOSTNAME:-rpi-netdata}
     ports:
