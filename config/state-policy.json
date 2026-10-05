@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "services": {
+    "pihole": [
+      {"target": "/etc/pihole", "kind": "essential", "consistency": "stop"},
+      {"target": "/etc/dnsmasq.d", "kind": "essential", "consistency": "stop"}
+    ],
+    "tailscale": [{"target": "/var/lib/tailscale", "kind": "essential", "consistency": "stop"}],
+    "homer": [{"target": "/www/assets", "kind": "essential", "consistency": "stop"}],
+    "speedtest-tracker": [{"target": "/config", "kind": "essential", "consistency": "stop"}],
+    "netdata": [
+      {"target": "/etc/netdata", "kind": "essential", "consistency": "stop"},
+      {"target": "/var/lib/netdata", "kind": "essential", "consistency": "stop"},
+      {"target": "/var/cache/netdata", "kind": "cache", "consistency": "stop", "exclude": true, "reason": "Regenerable metrics history; retained config and library state are required."}
+    ],
+    "portainer": [{"target": "/data", "kind": "essential", "consistency": "stop"}],
+    "webtop": [{"target": "/config", "kind": "essential", "consistency": "stop"}],
+    "uptime-kuma": [{"target": "/app/data", "kind": "essential", "consistency": "stop"}],
+    "dozzle": [],
+    "watchtower": []
+  }
+}
