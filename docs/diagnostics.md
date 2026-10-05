@@ -37,6 +37,8 @@ HTTP client tools exist inside the image.
   TLS trust. Verify private HTTPS and app authentication from clients separately.
 - Pi-hole's effective `pihole-FTL --config dns.upstreams` matches the rendered
   `FTLCONF_dns_upstreams`. CLI output is normalized in memory, never displayed.
+- Its effective DNS listener mode matches the declared `local` or acknowledged
+  `all` mode; a match does not prove remote denial or household client coverage.
 - Tailscale `BackendState` distinguishes pending enrollment from failure without
   dumping peer data. Identity persistence and denied-client tests remain live
   acceptance checks.
@@ -44,6 +46,13 @@ HTTP client tools exist inside the image.
 - Writable state mount filesystems meet the proposed 20% free threshold. Inaccessible
   sources require running on the real Docker host. A capacity check does not
   prove an external disk is the expected mounted device; validate that before start.
+
+Home Assistant and Syncthing use the same container/listener/HTTP checks. Their
+device automations, proxy login and file synchronization require the separate
+live acceptance in the [home](../modules/home/README.md#live-acceptance) and
+[files](../modules/files/README.md#live-acceptance) runbooks. Syncthing ownership
+is checked before managed startup/enable/update; doctor does not repeat that
+service-specific ownership check.
 
 Use [Pi-hole's configuration documentation](https://docs.pi-hole.net/ftldns/configfile/)
 when interpreting environment-controlled values. Settings supplied through the

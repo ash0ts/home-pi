@@ -16,6 +16,11 @@ Compose owns runtime images, mounts, ports, networks, environment names, health 
 
 New installations explicitly choose `./pi init --preset standard` (core plus health) or `--preset core`. Existing installations use `./pi init --existing` to import deployed service labels and preserve previously enabled functionality; unknown services block import for review. Never infer a migration from the new-install preset.
 
-Use `./pi backup MODULE` for selected module data, `./pi doctor --services SERVICE` for runtime checks, and `./pi status` for redacted status. The shared catalog feeds backup, doctor, and portal integration; service-specific code belongs only where an upstream protocol requires it. Runtime changes do not restart core DNS or Tailscale.
+Use `./pi backup MODULE` for selected module data, `./pi doctor --services SERVICE` for runtime checks, and `./pi status` for redacted status. The shared catalog feeds backup, doctor and private access planning; dashboard links and monitors use native settings. Service-specific code belongs only where an upstream protocol requires it. Runtime changes do not restart core DNS or Tailscale.
+
+For regression checks like the home/files modules, reuse `tests/module_fixture.py`
+for dummy Compose models and fake lifecycle commands. Keep upstream runtime
+smoke checks isolated from household devices and identities; they establish only
+their recorded scope.
 
 Prove feed refresh and read/star state restoration for the reading module before relying on it. Hardware-dependent modules and actual network isolation remain pending until their devices and clients exist. Static validation is not live deployment evidence.

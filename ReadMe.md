@@ -23,9 +23,9 @@ Ad filtering, remote access and the browser VPN each do a different job. The bro
 
 ## Start here
 
-- **Setting up a new Pi?** Follow the [setup guide](docs/setup.md).
+- **Pi not set up yet?** Start with [first boot](docs/setup.md#if-your-pi-is-not-set-up-yet), then get the core apps running.
 - **Already running Home Pi?** Start with [existing installations](docs/setup.md#existing-installations) to keep your settings and data.
-- **Picking up where we left off?** Open the [remaining-work checklist](docs/TODO.md). It starts with finding the Pi and confirming how to connect—no need to know the technical details beforehand.
+- **Picking up where we left off?** Open the [remaining-work checklist](docs/TODO.md). The repository work is merged; the next step is setting up the Pi and testing one personal device.
 
 The code and automated checks are in place. Checks on the actual Pi and home network are still pending; [delivery notes](docs/implementation-status.md) record what has been tested.
 
@@ -39,6 +39,7 @@ The code and automated checks are in place. Checks on the actual Pi and home net
 | Update the apps | [Reviewed updates](docs/updates.md) |
 | Set up dashboard links, monitoring and schedules | [Everyday operations](docs/operations.md) |
 | Organize devices, guest Wi-Fi and DNS filtering at home or away | [Start with your network](docs/network.md) |
+| Try a home automation or sync a personal folder | [Home Assistant](modules/home/README.md) · [Syncthing](modules/files/README.md) |
 | Try the feed reader or private browser | [Reading](modules/reading/README.md) · [Browser](modules/browser/README.md) |
 
 Working on the repository? Start with the [agent skill](.agents/skills/home-pi/SKILL.md) and [contributor rules](AGENTS.md). The [module guide](docs/adding-a-service.md) explains how to add a service.

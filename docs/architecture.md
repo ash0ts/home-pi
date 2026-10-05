@@ -13,9 +13,10 @@ repository work alone establishes no live network or recovery guarantees.
 | Capability | Boundary and required evidence |
 | --- | --- |
 | LAN DNS filtering | Clients must actually use Pi-hole. DHCP, IPv6 DNS, secure/private DNS, and VPN overrides need client tests. |
+| Remote DNS over Tailscale | Opt-in [network setup](network.md#use-pi-hole-while-away): reviewed DNS grants, listener acknowledgment and client resolver/loss tests. Does not change browser egress. |
 | Private management | Selected HTTPS proxy listeners plus explicit tailnet permissions and application auth. Direct backends and host-network Pi-hole need separate checks. |
 | Optional browser VPN | Webtop shares Gluetun's network namespace; UI publishes through that owner. Enabled only after explicit configuration and failure testing. |
-| Subnet router or exit node | Separate opt-in mode requiring actual topology, authorization, routing and client egress tests. |
+| Subnet router or exit node | Not configured by this repository; requires separate topology, authorization, routing and client egress tests. |
 | Whole-home commercial VPN | A separate router/gateway project. Setting router DNS to Pi-hole does not route application traffic through a VPN. |
 | Monitoring | On-Pi checks report service problems while available. A full-host outage needs a tested off-Pi observer. |
 | Recovery | Encrypted off-device state plus separately accessible credentials and verified application-state restore. |
@@ -36,11 +37,12 @@ database, scheduler, or network management daemon belong in this contract.
 
 One ignored desired selection drives profiles/modules. New modules are disabled
 by default. The new-install standard selects core plus Uptime Kuma; diagnostics,
-privileged administration, and the browser are opt-in. Migration first inventories
+privileged administration, browser, reading, home, and files are opt-in. Migration first inventories
 and preserves all currently enabled services. Adding a module must not require a
 service-specific installer branch. Disabling one stops only its owned services,
-removes owned routes/monitor registrations, preserves data, and must not restart
+removes owned routes, preserves data, and must not restart
 DNS/Tailscale or disable a required dependency.
+Dashboard links and native monitor entries are maintained by the owner.
 
 Configuration generation preserves valid existing secrets and application keys,
 writes private files atomically with mode 0600, and keeps real values out of logs
@@ -102,11 +104,14 @@ Measure DNS latency, pressure/swap, throttling, disk writes, and optional worklo
 interference before imposing caps on essential services. Shared-memory limits
 are limits, not preallocated RAM.
 
-FreshRSS with SQLite is the first new module; private authentication, bounded
-retention, supported refresh, and restored read/starred state are acceptance
-requirements. Subscriptions come from the user's chosen feeds/OPML. Syncthing
-waits for specific folders and independent backup. Home Assistant Container and
-ESPHome wait for a real device/integration; no reimage or assumed radio/printer.
+[FreshRSS](../modules/reading/README.md) uses chosen feeds/OPML; acceptance covers
+private login, retention, refresh and restored read/starred state.
+[Syncthing](../modules/files/README.md) is available for explicitly paired personal
+devices and selected folders, with independent backup; private GUI access does
+not provide sync transport. [Home Assistant Container](../modules/home/README.md)
+is available for a selected IP-based integration; no radios, MQTT or ESPHome are
+installed automatically. Both modules use isolated bridges and loopback admin
+backends, and stay disabled until selected.
 Each extension inherits H0, access, storage, restore, monitoring, and performance
 gates. Optional development can proceed in isolation while live owner checks
 remain open.

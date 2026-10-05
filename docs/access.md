@@ -28,7 +28,7 @@ created. `home.arpa` names do not acquire tailnet certificates.
 ## Selection and migration
 
 New configuration selects core plus the `health` module. Diagnostics,
-administration, browser, and reading modules are opt-in. One ignored
+administration, browser, reading, home, and files modules are opt-in. One ignored
 `local/selection.json` is authoritative; inherited `COMPOSE_FILE` and
 `COMPOSE_PROFILES` are rejected. Raw `docker compose` starts core only; managed
 commands apply the selection and preserve the recorded project name.
@@ -75,8 +75,9 @@ for a documented LAN exception. The automatic Serve path requires loopback;
 LAN exceptions need separately implemented and tested TLS/access controls.
 Wildcard/public admin bindings are rejected.
 
-Pi-hole uses host networking and `local` DNS listening mode, which is not a
-substitute for network segmentation/firewall policy. Docker-published ports may
+Pi-hole uses host networking and defaults to `local` DNS listening mode. The
+reviewed remote-DNS path can opt into `all`; neither mode substitutes for tested
+network segmentation/firewall policy. Docker-published ports may
 bypass UFW; inspect Docker's actual firewall backend and effective IPv4/IPv6
 rules, then test from separate clients. Portainer's Docker socket grants broad
 host control. A `:ro` socket on Dozzle does not constrain Docker API methods.
