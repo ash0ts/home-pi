@@ -4,6 +4,11 @@ Continue from the ordered [remaining-work checklist](TODO.md); this document rec
 
 ## Useful-home follow-up
 
+Delivered as [network setup (#10)](https://github.com/ash0ts/home-pi/pull/10),
+[Home Assistant (#11)](https://github.com/ash0ts/home-pi/pull/11), and
+[Syncthing (#12)](https://github.com/ash0ts/home-pi/pull/12). CI on each PR is the
+authoritative check record; these changes do not deploy to the household.
+
 The owner selected network setup, remote DNS, automation and selected-folder sync
 on 2026-10-05. The [network guide](network.md) prepares native device profiles,
 guest boundary checks and monitoring. Pi-hole retains local DNS by default;
@@ -36,9 +41,9 @@ restoration from a stopped-writer copy. It contacted no household peers; its
 containers/network were removed. This was not encrypted off-device recovery,
 mobile support, guest isolation, conflict acceptance or a real Pi capacity test.
 
-The complete local suite ran 143 tests successfully (one existing encryption
-fixture skipped because restic is unavailable); static validation, YAML lint and
-all 13 registry ARM64 checks passed. The owner confirmed the Pi is not set up
+The complete local suite passed all 143 tests with no skips after using the
+existing test-only restic binary for the encrypted recovery fixture. Static
+validation, YAML lint and all 13 registry ARM64 checks passed. The owner confirmed the Pi is not set up
 yet. Live checklist items remain pending, and both new modules remain opt-in.
 
 Implemented from the supplied plan on 2026-10-05, starting at
