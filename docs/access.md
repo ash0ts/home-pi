@@ -16,6 +16,7 @@ from application login and allowed/denied client verification.
 | Portainer | Loopback HTTPS9443 | 8447 | Granted admins + enrolled app login; privileged Docker management |
 | Dozzle | Loopback HTTP8888 | 8448 | Granted admins; Docker log access; optional upstream auth |
 | FreshRSS | Loopback HTTP8082 | 8450 | Granted users + enrolled app login |
+| Home Assistant | Loopback HTTP8123 | 8451 | Granted users + enrolled app login and exact proxy trust |
 | Webtop | Loopback HTTPS3002 | 8449 | Granted users + Webtop password; browser privacy is a separate gate |
 
 The external URL is `https://ACTUAL_NODE.ts.net:PORT` (443 may be omitted).
