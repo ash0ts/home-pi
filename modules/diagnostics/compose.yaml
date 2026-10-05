@@ -12,12 +12,16 @@ services:
       APP_URL: ${SPEEDTEST_APP_URL}
       DB_CONNECTION: sqlite
       DISPLAY_TIMEZONE: ${TZ}
-      SPEEDTEST_SCHEDULE: "0 */6 * * *" # run every 6 hours
-      PRUNE_RESULTS_OLDER_THAN: 180 # keep 6 months of history (Pi 5 has plenty of storage)
+      SPEEDTEST_SCHEDULE: ${SPEEDTEST_SCHEDULE:-0 */6 * * *}
+      PRUNE_RESULTS_OLDER_THAN: ${SPEEDTEST_RETENTION_DAYS:-180}
+      SPEEDTEST_SERVERS: ${SPEEDTEST_SERVERS:-}
     volumes:
       - ./speedtest-tracker/config:/config
     networks: [diagnostics]
     restart: unless-stopped
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: "3"}
 
   netdata:
     init: true
@@ -41,6 +45,9 @@ services:
       - /etc/os-release:/host/etc/os-release:ro
     networks: [diagnostics]
     restart: unless-stopped
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: "3"}
 
 volumes:
   netdata_config:

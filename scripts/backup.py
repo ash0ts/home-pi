@@ -13,6 +13,7 @@ from lib.config import (ROOT, ConfigError, atomic_write, command_lock, docker,
                         load_env, reject_root, run_compose)
 from lib.recovery import (SERVICE_RE, SNAPSHOT_RE, archive_members, digest, now,
                           repository_environment, restic)
+from service_config import active_file_secrets
 
 SYSTEM_BINDS = {('/var/run/docker.sock', '/var/run/docker.sock'),
                 ('/dev/net/tun', '/dev/net/tun')}
@@ -132,7 +133,7 @@ def copy_archive(container, target, archive):
         raise ConfigError('Docker returned an invalid empty archive.')
 
 
-def copy_private_config(stage):
+def copy_private_config(stage, model=None, services=None):
     files = []
     for relative in PRIVATE_CONFIG:
         source = ROOT / relative
@@ -146,6 +147,14 @@ def copy_private_config(stage):
         target.parent.mkdir(parents=True, mode=0o700, exist_ok=True)
         atomic_write(target, source.read_bytes(), 0o600)
         files.append({'path': str(target.relative_to(stage)), 'sha256': digest(target)})
+    for index, (name, source) in enumerate(active_file_secrets(model or {}, services).items()):
+        # Numeric quarantine paths never reuse an external source path. The
+        # encrypted manifest records that path only for deliberate later recovery.
+        target = stage / 'config' / 'compose-secrets' / str(index)
+        target.parent.mkdir(parents=True, mode=0o700, exist_ok=True)
+        atomic_write(target, source.read_bytes(), 0o600)
+        files.append({'path': str(target.relative_to(stage)), 'sha256': digest(target),
+                      'compose_secret': name, 'source_path': str(source)})
     return files
 
 
@@ -181,7 +190,7 @@ def create_backup(services=None, allow_dns_interruption=False, allow_local_repos
     restart_failures = []
     result = None
     try:
-        files = copy_private_config(stage)
+        files = copy_private_config(stage, model, services)
         commit = source_commit()
         writer_services = {record['service'] for record in writers}
         for record in records:

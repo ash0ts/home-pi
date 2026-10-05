@@ -65,8 +65,14 @@ class AccessTests(unittest.TestCase):
             self.assertEqual(result['status'], 'NEEDS_CONFIGURATION')
             self.assertFalse(any('--bg' in call for call in calls))
 
+    def test_legacy_webtop_requires_explicit_namespace_migration(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(selection, 'ROOT', Path(directory)), patch.object(selection, 'load_env', return_value={'COMPOSE_PROJECT_NAME': 'old'}), patch.object(selection, 'docker', return_value=SimpleNamespace(stdout='pihole\nwebtop\n')):
+            with self.assertRaisesRegex(ConfigError, 'partial service set'):
+                selection.initialize(existing=True)
+            self.assertFalse((Path(directory) / 'local/selection.json').exists())
+
     def test_selection_preserves_existing_apps_and_never_starts(self):
-        with tempfile.TemporaryDirectory() as directory, patch.object(selection, 'ROOT', Path(directory)), patch.object(selection, 'load_env', return_value={'COMPOSE_PROJECT_NAME': 'old'}), patch.object(selection, 'docker', return_value=SimpleNamespace(stdout='pihole\nwebtop\nportainer\ndozzle\nwatchtower\n')) as call:
+        with tempfile.TemporaryDirectory() as directory, patch.object(selection, 'ROOT', Path(directory)), patch.object(selection, 'load_env', return_value={'COMPOSE_PROJECT_NAME': 'old'}), patch.object(selection, 'docker', return_value=SimpleNamespace(stdout='pihole\nwebtop\ngluetun\nportainer\ndozzle\nwatchtower\n')) as call:
             self.assertEqual(selection.initialize(existing=True), ['administration', 'browser'])
             self.assertEqual(call.call_args.args[0], 'ps')
             with patch.object(selection, 'selected', return_value=['administration', 'browser']):

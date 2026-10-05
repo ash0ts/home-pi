@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "reading",
+  "description": "Private FreshRSS subscriptions and saved reading state using SQLite.",
+  "services": ["freshrss"],
+  "requires": [],
+  "access": [{"service": "freshrss", "title": "Reading", "https_port": 8450, "scheme": "http", "path": "/", "auth": "application account required; complete private first-run enrollment"}],
+  "state": [
+    {"service": "freshrss", "target": "/var/www/FreshRSS/data", "kind": "essential", "consistency": "stop"},
+    {"service": "freshrss", "target": "/var/www/FreshRSS/extensions", "kind": "essential", "consistency": "stop"}
+  ],
+  "secrets": []
+}

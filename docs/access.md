@@ -15,6 +15,7 @@ from application login and allowed/denied client verification.
 | Netdata | Loopback HTTP19999 | 8446 | Granted admins; use application access controls when configured |
 | Portainer | Loopback HTTPS9443 | 8447 | Granted admins + enrolled app login; privileged Docker management |
 | Dozzle | Loopback HTTP8888 | 8448 | Granted admins; Docker log access; optional upstream auth |
+| FreshRSS | Loopback HTTP8082 | 8450 | Granted users + enrolled app login |
 | Webtop | Loopback HTTPS3002 | 8449 | Granted users + Webtop password; browser privacy is a separate gate |
 
 The external URL is `https://ACTUAL_NODE.ts.net:PORT` (443 may be omitted).
@@ -24,7 +25,7 @@ created. `home.arpa` names do not acquire tailnet certificates.
 ## Selection and migration
 
 New configuration selects core plus the `health` module. Diagnostics,
-administration, and browser modules are opt-in. One ignored
+administration, browser, and reading modules are opt-in. One ignored
 `local/selection.json` is authoritative; inherited `COMPOSE_FILE` and
 `COMPOSE_PROFILES` are rejected. Raw `docker compose` starts core only; managed
 commands apply the selection and preserve the recorded project name.

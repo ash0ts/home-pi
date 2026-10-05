@@ -8,6 +8,9 @@ services:
       - ./uptime-kuma/data:/app/data
     networks: [health]
     restart: unless-stopped
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: "3"}
 
 networks:
   health:

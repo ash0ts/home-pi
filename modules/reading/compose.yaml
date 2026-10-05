@@ -1,0 +1,22 @@
+services:
+  freshrss:
+    image: freshrss/freshrss:1.30.0@sha256:258b8edfc8a76a61f60d2d6a14d8f8d12495d78abf38646a2137612dfa264a21
+    container_name: freshrss
+    environment:
+      TZ: ${TZ:-Etc/UTC}
+      CRON_MIN: ${FRESHRSS_CRON_MIN:-17,47}
+      TRUSTED_PROXY: "0"
+      ENABLE_ACCESS_LOG: "0"
+    ports:
+      - "127.0.0.1:8082:80"
+    volumes:
+      - ./freshrss/data:/var/www/FreshRSS/data
+      - ./freshrss/extensions:/var/www/FreshRSS/extensions
+    networks: [reading]
+    restart: unless-stopped
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: "3"}
+networks:
+  reading:
+    driver: bridge

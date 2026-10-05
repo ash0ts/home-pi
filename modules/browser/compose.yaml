@@ -1,22 +1,64 @@
 services:
+  gluetun:
+    image: qmcgaw/gluetun:v3.41.3@sha256:fa19cc76b2af13d57a8d3dc3066f2ada061b1c761b8aecf989b3877c0486e027
+    container_name: gluetun
+    cap_add: [NET_ADMIN]
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    networks: [browser-egress]
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: "1"
+      net.ipv6.conf.default.disable_ipv6: "1"
+    environment:
+      TZ: ${TZ:-Etc/UTC}
+      VPN_SERVICE_PROVIDER: mullvad
+      VPN_TYPE: wireguard
+      WIREGUARD_PRIVATE_KEY_SECRETFILE: /run/secrets/wireguard_private_key
+      WIREGUARD_ADDRESSES: ${WIREGUARD_ADDRESSES:?Set the actual Mullvad IPv4 interface CIDR}
+      WIREGUARD_ALLOWED_IPS: 0.0.0.0/0
+      SERVER_COUNTRIES: ${GLUETUN_SERVER_COUNTRIES:-}
+      DNS_SERVER: "on"
+      DNS_ADDRESS: 127.0.0.1
+      DNS_UPSTREAM_RESOLVER_TYPE: dot
+      DNS_UPSTREAM_RESOLVERS: cloudflare
+      DNS_KEEP_NAMESERVER: "off"
+      DNS_UPSTREAM_IPV6: "off"
+      FIREWALL_INPUT_PORTS: "3001"
+    secrets:
+      - source: browser_wireguard_private_key
+        target: wireguard_private_key
+    ports:
+      - "127.0.0.1:3002:3001"
+    restart: unless-stopped
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: "3"}
   webtop:
     image: lscr.io/linuxserver/webtop:debian-xfce-d086b04b-ls215@sha256:918aa840a4374a2eb1ab5e05aebb7c869a6fb4563eb2015b829c08fa46725b2c
     container_name: webtop
-    ports:
-      - "${ADMIN_BIND_IP:-127.0.0.1}:3002:3001" # https://PI-IP:3002
+    network_mode: service:gluetun
+    depends_on:
+      gluetun:
+        condition: service_healthy
+        restart: true
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-      - CUSTOM_USER=${WEBTOP_USER:-user}
-      - PASSWORD=${WEBTOP_PASSWORD}
+      PUID: ${PUID:?Configure the existing application UID}
+      PGID: ${PGID:?Configure the existing application GID}
+      TZ: ${TZ:-Etc/UTC}
+      CUSTOM_USER: ${WEBTOP_USER:-user}
+      PASSWORD: ${WEBTOP_PASSWORD:?Set a private browser password}
     volumes:
       - ./webtop/config:/config
-    shm_size: "4g" # Pi 5 16GB can handle more for smoother browsing
-    security_opt:
-      - seccomp:unconfined # required for Docker-in-Docker if needed
-    networks: [browser]
+      - ./modules/browser/resolv.conf:/etc/resolv.conf:ro
+    shm_size: 4g
     restart: unless-stopped
-
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: "3"}
 networks:
-  browser:
+  browser-egress:
+    driver: bridge
+    enable_ipv6: false
+secrets:
+  browser_wireguard_private_key:
+    file: ${GLUETUN_WIREGUARD_KEY_FILE:-./local/wireguard-private-key}
