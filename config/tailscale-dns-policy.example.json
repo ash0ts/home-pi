@@ -1,0 +1,8 @@
+{
+  "groups": {"group:home-dns": ["personal-user@example.com"]},
+  "grants": [{"src": ["group:home-dns"], "dst": ["tag:home-pi"], "ip": ["tcp:53", "udp:53"]}],
+  "tests": [
+    {"src": "personal-user@example.com", "accept": ["tag:home-pi:53"], "deny": ["tag:home-pi:8081"]},
+    {"src": "denied-user@example.com", "deny": ["tag:home-pi:53"]}
+  ]
+}

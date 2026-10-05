@@ -120,6 +120,17 @@ class ModuleTests(unittest.TestCase):
             with self.assertRaisesRegex(config.ConfigError, 'Conflicting HTTPS'):
                 modules.validate(['reader', 'health'])
 
+    def test_candidate_cannot_broaden_dns_without_review_acknowledgment(self):
+        self.core['pihole'] = {'environment': {'FTLCONF_dns_listeningMode': 'all'}}
+        with self.patch_render(), patch.object(modules, 'load_env', return_value={'PIHOLE_LISTENING_MODE': 'all'}):
+            with self.assertRaisesRegex(config.ConfigError, 'ACK_REMOTE_DNS'):
+                modules.validate([])
+        with self.patch_render(), patch.object(modules, 'load_env', return_value={'PIHOLE_LISTENING_MODE': 'all', 'ACK_REMOTE_DNS': 'yes'}):
+            modules.validate([])
+        with self.patch_render(), patch.object(modules, 'load_env', return_value={}):
+            with self.assertRaisesRegex(config.ConfigError, 'differs from'):
+                modules.validate([])
+
     def test_nonloopback_only_explicit_rfc1918_acknowledgment(self):
         self.add_module('reader')
         self.models['reader']['services']['reader']['ports'][0]['host_ip'] = '0.0.0.0'

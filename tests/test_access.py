@@ -40,6 +40,19 @@ class AccessTests(unittest.TestCase):
         with self.assertRaises(ConfigError):
             access.validate_access(modified, {})
 
+    def test_remote_dns_still_requires_review_and_loopback_admin(self):
+        modified = model()
+        modified['services']['pihole']['environment']['FTLCONF_dns_listeningMode'] = 'all'
+        env = {'PIHOLE_LISTENING_MODE': 'all', 'ACK_REMOTE_DNS': 'yes'}
+        self.assertTrue(access.validate_access(modified, env))
+        with self.assertRaises(ConfigError):
+            access.validate_access(modified, {'PIHOLE_LISTENING_MODE': 'all'})
+        with self.assertRaises(ConfigError):
+            access.validate_access(modified, {})
+        modified['services']['pihole']['environment']['FTLCONF_webserver_port'] = '0.0.0.0:8081'
+        with self.assertRaises(ConfigError):
+            access.validate_access(modified, env)
+
     def test_https_urls_and_backend_from_model(self):
         rows = access.desired_routes(model(), {'TAILNET_HOSTNAME': 'pi.fixture.ts.net'})
         self.assertEqual(rows[0]['url'], 'https://pi.fixture.ts.net/')

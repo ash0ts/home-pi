@@ -264,6 +264,12 @@ def validate(selection, probe_services=(), *, env_override=None, model_loader=No
             owners[service] = name
     model = render(compose_files(ordered))
     services = model.get("services", {})
+    if 'pihole' in services:
+        from service_config import validate_dns_mode
+        mode = validate_dns_mode(env)
+        declared = str(services['pihole'].get('environment', {}).get('FTLCONF_dns_listeningMode', 'local')).lower()
+        if declared != mode:
+            raise ConfigError('Pi-hole DNS listening mode differs from the reviewed private setting.')
     if set(services) != set(owners):
         raise ConfigError("The merged service set differs from declared ownership.")
     listeners, routes = {}, {443: "homer", 8443: "pihole"}

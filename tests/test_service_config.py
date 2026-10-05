@@ -10,6 +10,16 @@ from lib.config import ConfigError
 
 
 class ServiceConfigTests(unittest.TestCase):
+    def test_remote_dns_is_opt_in_and_invalid_modes_are_refused(self):
+        self.assertEqual(config.validate_dns_mode({}), 'local')
+        for mode in ('all', 'ALL'):
+            with self.subTest(mode=mode), self.assertRaisesRegex(ConfigError, 'ACK_REMOTE_DNS'):
+                config.validate_dns_mode({'PIHOLE_LISTENING_MODE': mode})
+            self.assertEqual(config.validate_dns_mode({'PIHOLE_LISTENING_MODE': mode, 'ACK_REMOTE_DNS': 'yes'}), 'all')
+        for mode in ('', 'single', 'none', 'unexpected'):
+            with self.subTest(mode=mode), self.assertRaisesRegex(ConfigError, 'local or all'):
+                config.validate_dns_mode({'PIHOLE_LISTENING_MODE': mode, 'ACK_REMOTE_DNS': 'yes'})
+
     def test_core_does_not_require_optional_credentials(self):
         with tempfile.TemporaryDirectory() as directory, patch.object(config, 'ROOT', Path(directory)):
             config.validate_services({'PIHOLE_PASSWORD': 'dummy', 'PIHOLE_DNS': '1.1.1.1'}, ['pihole', 'tailscale', 'homer'])

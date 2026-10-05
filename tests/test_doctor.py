@@ -101,6 +101,17 @@ class DoctorTests(unittest.TestCase):
             checks = doctor.dns_observations({"DNS_PROBE_SERVER": "127.0.0.1"})
         self.assertEqual([c["status"] for c in checks], ["FAIL", "FAIL", "NEEDS_CONFIGURATION"])
 
+    def test_pihole_listener_follows_reviewed_mode_without_claiming_network_safety(self):
+        for declared, actual, expected in (('local', 'LOCAL', 'PASS'), ('all', 'ALL', 'PASS'),
+                                           ('local', 'ALL', 'FAIL'), ('all', 'LOCAL', 'FAIL')):
+            spec = {'environment': {'FTLCONF_dns_listeningMode': declared}}
+            with self.subTest(declared=declared, actual=actual), patch.object(doctor, 'docker',
+                    side_effect=[completed('127.0.0.1:8081'), completed(actual)]):
+                result = doctor.listener_observation('pihole', 'a' * 64, spec)
+            self.assertEqual(result['status'], expected)
+            if expected == 'PASS':
+                self.assertIn('remote denial remains untested', result['evidence'])
+
     def test_dns_fixture_and_missing_binary(self):
         env = {"DNS_PROBE_SERVER": "127.0.0.1", "DNS_BLOCK_TEST_NAME": "blocked.example", "DNS_BLOCK_TEST_ADDRESS": "0.0.0.0"}
         with patch.object(doctor, "dns_query", side_effect=[("NOERROR", ["1.1.1.1"])] * 2 + [("NOERROR", ["0.0.0.0"])] * 2):

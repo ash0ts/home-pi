@@ -42,6 +42,7 @@ def _configure(project_name=None, dry_run=False):
         "TZ": "America/New_York", "PUID": str(os.getuid()), "PGID": str(os.getgid()),
         "PIHOLE_PASSWORD": secrets.token_hex(24), "PIHOLE_HOSTNAME": "pi-hole",
         "PIHOLE_DOMAIN": "home.arpa", "PIHOLE_DNS": "1.1.1.1;1.0.0.1", "TS_AUTHKEY": "",
+        "PIHOLE_LISTENING_MODE": "local", "ACK_REMOTE_DNS": "no",
         "SPEEDTEST_APP_KEY": "base64:" + base64.b64encode(secrets.token_bytes(32)).decode(),
         "SPEEDTEST_APP_URL": "http://localhost:8765", "NETDATA_HOSTNAME": "pi-netdata",
         "WEBTOP_USER": "user", "WEBTOP_PASSWORD": secrets.token_hex(24),
