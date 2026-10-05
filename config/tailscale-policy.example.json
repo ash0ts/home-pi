@@ -1,0 +1,6 @@
+{
+  "groups": {"group:home-admins": ["owner@example.com"]},
+  "tagOwners": {"tag:home-pi": ["group:home-admins"]},
+  "grants": [{"src": ["group:home-admins"], "dst": ["tag:home-pi"], "ip": ["tcp:443", "tcp:8443-8450"]}],
+  "tests": [{"src": "owner@example.com", "accept": ["tag:home-pi:443", "tag:home-pi:8443"], "deny": ["tag:home-pi:53", "tag:home-pi:8080"]}]
+}

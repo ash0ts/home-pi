@@ -108,9 +108,8 @@ def selected_services(model, env, requested=None):
     services = model.get("services", {})
     if not isinstance(services, dict) or any(not SERVICE_RE.fullmatch(name) for name in services):
         raise ConfigError("Compose returned invalid service identifiers.")
-    profiles = {value for value in re.split(r"[,\s]+", env.get("COMPOSE_PROFILES", "")) if value}
-    active = {name for name, spec in services.items()
-              if not spec.get("profiles") or profiles.intersection(spec["profiles"]) or "*" in profiles}
+    # The managed Compose invocation already applies the sole desired selection.
+    active = set(services)
     if requested:
         if set(requested) - active:
             raise ConfigError("Requested doctor services are missing or disabled in the desired selection.")
@@ -326,6 +325,42 @@ def ownership_observation(service, spec, mounts):
                      "Run doctor on the Docker host and verify /config ownership against declared PUID/PGID.", module=service)
 
 
+def firewall_observation():
+    try:
+        response = docker("info", "--format", "{{json .FirewallBackend}}", check=False)
+        backend = json.loads(response.stdout).get("Driver")
+        if response.returncode == 0 and backend in {"iptables", "nftables"}:
+            return check("docker.firewall_backend", "PASS", "Docker reports the " + backend + " firewall backend; this does not verify effective access rules.",
+                         "Test host and forwarded traffic from separate allowed/denied clients.", module="home-baseline")
+    except (ConfigError, ValueError, AttributeError, OSError):
+        pass
+    return check("docker.firewall_backend", "NEEDS_CONFIGURATION", "Docker firewall backend could not be observed with this daemon/API.",
+                 "Inspect actual daemon configuration and IPv4/IPv6 rules on the Docker host.", module="home-baseline")
+
+
+def listener_observation(service, container_id, spec):
+    if service == "pihole":
+        output = docker("exec", container_id, "pihole-FTL", "--config", "webserver.port", check=False)
+        dns = docker("exec", container_id, "pihole-FTL", "--config", "dns.listeningMode", check=False)
+        okay = not output.returncode and not dns.returncode and output.stdout.strip().strip('"') == "127.0.0.1:8081" and dns.stdout.strip().strip('"') == "LOCAL"
+        # FTL versions may print the enum in lowercase.
+        okay = okay or (not output.returncode and not dns.returncode and output.stdout.strip().strip('"') == "127.0.0.1:8081" and dns.stdout.strip().strip('"').lower() == "local")
+    elif spec.get("ports"):
+        response = docker("inspect", "--format", "{{json .NetworkSettings.Ports}}", container_id, check=False)
+        try:
+            actual = {(port, binding["HostIp"], str(binding["HostPort"]))
+                      for port, bindings in json.loads(response.stdout).items() for binding in (bindings or [])}
+            expected = {(str(port["target"]) + "/" + port.get("protocol", "tcp"), port["host_ip"], str(port["published"])) for port in spec["ports"]}
+            okay = response.returncode == 0 and actual == expected
+        except (ValueError, KeyError, TypeError, AttributeError):
+            okay = False
+    else:
+        return None
+    return check("listeners." + service, "PASS" if okay else "FAIL",
+                 "Effective listeners match declared access configuration; remote denial remains untested." if okay else "Effective listeners differ from declared access configuration or could not be read.",
+                 "" if okay else "Review actual listeners and recreate only this service after validating the access recovery route.", module=service)
+
+
 def collect(env, model, services):
     results = []
     mounts = []
@@ -339,6 +374,9 @@ def collect(env, model, services):
             mounts.extend(service_mounts)
             if not container_id:
                 continue
+            listener = listener_observation(service, container_id, model["services"][service])
+            if listener:
+                results.append(listener)
             if service in HTTP or service == "pihole":
                 results.append(http_observation(service, http_endpoint(service, model)))
             if service == "pihole":
@@ -388,6 +426,7 @@ def main(argv=None):
     except (ConfigError, OSError, ValueError, TypeError):
         checks = [check("runtime.configuration", "NEEDS_CONFIGURATION", "Private configuration or the managed Compose model is unavailable.",
                         "Run configure/validate and check Docker access. Raw configuration/error output is intentionally omitted.")]
+    checks.append(firewall_observation())
     checks.extend(home_checks(args.evidence))
     report = {"schema_version": 1, "observed_at": stamp(), "runtime_ready": successful(checks),
               "runtime_scope": "selected-services" if args.services else "desired-selection", "services": services,

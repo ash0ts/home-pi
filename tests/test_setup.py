@@ -123,10 +123,16 @@ class SetupTests(unittest.TestCase):
         hostile = {**self.env, "COMPOSE_FILE": "/tmp/unrelated.yaml", "COMPOSE_PROFILES": "all",
                    "COMPOSE_PROJECT_NAME": "wrong", "PIHOLE_PASSWORD": "shell-secret"}
         with patch.object(config, "ROOT", self.root), patch.dict(os.environ, hostile):
+            with self.assertRaises(config.ConfigError):
+                config.run_compose("ps")
+        self.assertFalse(self.calls.exists())
+        hostile.pop("COMPOSE_FILE")
+        hostile.pop("COMPOSE_PROFILES")
+        with patch.object(config, "ROOT", self.root), patch.dict(os.environ, hostile), patch("lib.selection.selected", return_value=["health"]):
             config.run_compose("ps", "--format", "table {{.Names}}\t{{.Status}}")
         call = json.loads(self.calls.read_text())
         expected = ["compose", "--project-directory", str(self.root), "--env-file", str(self.root / ".env"),
-                    "--project-name", "retained-project", "-f", str(self.root / "docker-compose.yaml"),
+                    "--project-name", "retained-project", "--profile", "health", "-f", str(self.root / "docker-compose.yaml"),
                     "ps", "--format", "table {{.Names}}\t{{.Status}}"]
         self.assertEqual(call["args"], expected)
         self.assertEqual(call["env"], {})

@@ -4,12 +4,13 @@ services:
     container_name: pihole
     hostname: ${PIHOLE_HOSTNAME:-pihole}
     domainname: ${PIHOLE_DOMAIN:-lan}
-    network_mode: "host" # DNS + web UI directly on LAN
+    network_mode: "host" # DNS policy is separate from the loopback web listener
     environment:
       TZ: ${TZ}
       FTLCONF_webserver_api_password: ${PIHOLE_PASSWORD}
       FTLCONF_dns_dnssec: "true"
-      FTLCONF_dns_listeningMode: "all"
+      FTLCONF_dns_listeningMode: "local"
+      FTLCONF_webserver_port: "127.0.0.1:8081"
       # DNS filtering does not change host or client traffic routing.
       FTLCONF_dns_upstreams: ${PIHOLE_DNS:-1.1.1.1;1.0.0.1}
       FTLCONF_misc_etc_dnsmasq_d: ${PIHOLE_CUSTOM_DNSMASQ:-false}
@@ -42,7 +43,7 @@ services:
     image: b4bz/homer:latest
     container_name: homer
     ports:
-      - "0.0.0.0:8080:8080" # http://PI-IP:8080
+      - "${ADMIN_BIND_IP:-127.0.0.1}:8080:8080" # http://PI-IP:8080
     volumes:
       - ./homer/assets:/www/assets
     environment:
@@ -51,10 +52,11 @@ services:
     restart: unless-stopped
 
   speedtest-tracker:
+    profiles: ["diagnostics"]
     image: lscr.io/linuxserver/speedtest-tracker:latest
     container_name: speedtest-tracker
     ports:
-      - "0.0.0.0:8765:80" # http://PI-IP:8765
+      - "${ADMIN_BIND_IP:-127.0.0.1}:8765:80" # http://PI-IP:8765
     environment:
       PUID: ${PUID}
       PGID: ${PGID}
@@ -70,11 +72,13 @@ services:
     restart: unless-stopped
 
   netdata:
+    init: true
+    profiles: ["diagnostics"]
     image: netdata/netdata:latest
     container_name: netdata
     hostname: ${NETDATA_HOSTNAME:-rpi-netdata}
     ports:
-      - "0.0.0.0:19999:19999" # http://PI-IP:19999
+      - "${ADMIN_BIND_IP:-127.0.0.1}:19999:19999" # http://PI-IP:19999
     cap_add:
       - SYS_PTRACE
     security_opt:
@@ -91,21 +95,22 @@ services:
     restart: unless-stopped
 
   portainer:
+    profiles: ["administration"]
     image: portainer/portainer-ce:latest
     container_name: portainer
     ports:
-      - "0.0.0.0:9443:9443" # https://PI-IP:9443
+      - "${ADMIN_BIND_IP:-127.0.0.1}:9443:9443" # https://PI-IP:9443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     restart: unless-stopped
 
   webtop:
+    profiles: ["browser"]
     image: lscr.io/linuxserver/webtop:debian-xfce
     container_name: webtop
     ports:
-      - "0.0.0.0:3000:3000" # http://PI-IP:3000
-      - "0.0.0.0:3002:3001" # https://PI-IP:3002
+      - "${ADMIN_BIND_IP:-127.0.0.1}:3002:3001" # https://PI-IP:3002
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -122,15 +127,17 @@ services:
   # ===== Management & Monitoring Additions =====
 
   uptime-kuma:
+    profiles: ["health"]
     image: louislam/uptime-kuma:latest
     container_name: uptime-kuma
     ports:
-      - "0.0.0.0:3001:3001" # http://PI-IP:3001
+      - "${ADMIN_BIND_IP:-127.0.0.1}:3001:3001" # http://PI-IP:3001
     volumes:
       - ./uptime-kuma/data:/app/data
     restart: unless-stopped
 
   watchtower:
+    profiles: ["legacy-updater"]
     image: containrrr/watchtower:latest
     container_name: watchtower
     volumes:
@@ -143,10 +150,11 @@ services:
     restart: unless-stopped
 
   dozzle:
+    profiles: ["administration"]
     image: amir20/dozzle:latest
     container_name: dozzle
     ports:
-      - "0.0.0.0:8888:8080" # http://PI-IP:8888
+      - "${ADMIN_BIND_IP:-127.0.0.1}:8888:8080" # http://PI-IP:8888
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:

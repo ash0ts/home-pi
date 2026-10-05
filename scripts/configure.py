@@ -23,6 +23,7 @@ def _configure(project_name=None, dry_run=False):
     path = ROOT / ".env"
     if path.is_symlink():
         raise ConfigError(".env must be a regular private file, not a symbolic link.")
+    is_new = not path.exists()
     existing = load_env(required=False)
     recorded = existing.get("COMPOSE_PROJECT_NAME")
     if recorded and project_name and recorded != project_name:
@@ -56,6 +57,9 @@ def _configure(project_name=None, dry_run=False):
         atomic_write(path, original + separator + additions)
     else:
         path.chmod(0o600)
+    if is_new:
+        from lib.selection import initialize
+        initialize(preset="standard")
     print("Private configuration ready (mode 0600); existing values preserved. No services started.")
 
 
