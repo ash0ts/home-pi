@@ -125,7 +125,7 @@ def container_observation(service):
         return check("container." + service, "FAIL", "Expected exactly one managed container; it is absent or unavailable.",
                      "Create only this enabled service with the managed Compose command, then rerun doctor.", module=service), None, []
     # Excludes environment, labels, logs, health output, and command arguments.
-    template = '[{{json .State.Status}},{{if .State.Health}}{{json .State.Health.Status}}{{else}}"none"{{end}},{{json .Mounts}}]'
+    template = '[{{json .State.Status}},{{with index .State "Health"}}{{json .Status}}{{else}}"none"{{end}},{{json .Mounts}}]'
     response = docker("inspect", "--format", template, ids[0], check=False)
     try:
         state, health, mounts = json.loads(response.stdout)
