@@ -1,0 +1,31 @@
+# Private configuration and evidence
+.env
+.env.*
+!.env.example
+.context/
+local/
+*.key
+*.pem
+*.age
+*.enc
+backups/
+backup/
+restic-cache/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Existing application state: retain paths during migration
+pihole/
+tailscale/
+homer/
+speedtest-tracker/
+webtop/
+uptime-kuma/
+netdata/
+portainer/
+freshrss/
+data/
+
+# Generated service configuration (tracked templates live under config/)
+generated/
