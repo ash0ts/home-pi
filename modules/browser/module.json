@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "browser",
+  "description": "Optional private desktop; VPN isolation is a separate migration.",
+  "services": [
+    "webtop"
+  ],
+  "requires": [],
+  "access": [
+    {
+      "service": "webtop",
+      "title": "Browser",
+      "https_port": 8449,
+      "scheme": "https+insecure",
+      "path": "/",
+      "auth": "application"
+    }
+  ],
+  "state": [
+    {
+      "service": "webtop",
+      "target": "/config",
+      "kind": "essential",
+      "consistency": "stop"
+    }
+  ],
+  "secrets": [
+    "WEBTOP_PASSWORD"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "health",
+  "description": "Service availability monitoring with Uptime Kuma.",
+  "services": [
+    "uptime-kuma"
+  ],
+  "requires": [],
+  "access": [
+    {
+      "service": "uptime-kuma",
+      "title": "Uptime Kuma",
+      "https_port": 8444,
+      "scheme": "http",
+      "path": "/",
+      "auth": "application"
+    }
+  ],
+  "state": [
+    {
+      "service": "uptime-kuma",
+      "target": "/app/data",
+      "kind": "essential",
+      "consistency": "stop"
+    }
+  ],
+  "secrets": []
+}

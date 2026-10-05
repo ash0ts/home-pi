@@ -2,7 +2,6 @@
 """Explicit configuration, validation, dependency, and startup stages."""
 
 import argparse
-import json
 import os
 from pathlib import Path
 import platform
@@ -31,8 +30,8 @@ def preflight():
         raise ConfigError(".env must be mode 0600. Run ./setup.sh configure to repair private file permissions.")
     docker("info", "--format", "{{.OSType}}/{{.Architecture}}")
     check_compose_version(docker("compose", "version", "--short").stdout)
-    run_compose("config", "--quiet")
-    model = json.loads(run_compose("config", "--format", "json").stdout)
+    from modules import selected, validate as validate_modules
+    model = validate_modules(selected())
     validate_services(env, model["services"])
     from access import validate_access
     validate_access(model, env)

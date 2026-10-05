@@ -39,6 +39,13 @@ def state_policy():
         raise ConfigError('Backup state policy is missing or invalid.') from exc
     if value.get('schema_version') != 1 or not isinstance(value.get('services'), dict):
         raise ConfigError('Unsupported backup state-policy schema.')
+    from modules import metadata_for_services
+    for service, metadata in metadata_for_services().items():
+        if service in value['services']:
+            raise ConfigError('Duplicate state policy between core and selected module.')
+        value['services'][service] = [{**{key: val for key, val in row.items() if key != 'service'},
+                                     **({'exclude': True} if row['kind'] == 'cache' and row.get('reason') else {})}
+                                    for row in metadata['state']]
     return value['services']
 
 

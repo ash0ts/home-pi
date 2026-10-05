@@ -1,42 +1,40 @@
-"""One non-secret desired selection; never infer migration state from new defaults."""
+"""Initialize explicit desired state from a preset or installed project labels."""
 import json
 from lib.config import ROOT, ConfigError, atomic_write, docker, load_env
 
-GROUPS = {'health': ['uptime-kuma'], 'diagnostics': ['netdata', 'speedtest-tracker'],
-          'administration': ['portainer', 'dozzle'], 'browser': ['webtop']}
-CORE = ['pihole', 'tailscale', 'homer']
-
 
 def selected():
-    path = ROOT / 'local' / 'selection.json'
-    if not path.is_file() or path.is_symlink():
-        raise ConfigError('Desired selection is missing. New install: select init --preset standard; migration: select init --existing. No services changed.')
-    try:
-        data = json.loads(path.read_text())
-        values = data['modules']
-        if data['schema_version'] != 1 or not isinstance(values, list) or any(not isinstance(x, str) or x not in GROUPS for x in values) or len(values) != len(set(values)):
-            raise ValueError()
-        return sorted(values)
-    except (ValueError, KeyError, TypeError):
-        raise ConfigError('Invalid local/selection.json; use schema_version 1 and supported unique module IDs.') from None
+    from modules import selected as read_selection
+    return read_selection()
 
 
 def initialize(preset=None, existing=False, dry_run=False):
+    from modules import CORE, catalog, resolve
     path = ROOT / 'local' / 'selection.json'
     if path.exists():
         return selected()
+    entries = catalog()
     if existing:
         project = load_env()['COMPOSE_PROJECT_NAME']
-        rows = docker('ps', '-a', '--filter', f'label=com.docker.compose.project={project}',
-                      '--format', '{{.Label "com.docker.compose.service"}}').stdout.split()
+        rows = set(docker('ps', '-a', '--filter', f'label=com.docker.compose.project={project}',
+                         '--format', '{{.Label "com.docker.compose.service"}}').stdout.split())
         if not rows:
-            raise ConfigError('No existing project containers found. Verify project identity; choose an explicit new-install preset only for a new installation.')
-        known = set(CORE + ['watchtower'] + [s for group in GROUPS.values() for s in group])
-        if set(rows) - known:
-            raise ConfigError('Existing project contains unrecognized services. Review the private inventory before selecting modules.')
-        values = [name for name, services in GROUPS.items() if set(services) & set(rows)]
+            raise ConfigError('No existing project containers found. Verify project identity before choosing a new-install preset.')
+        known = set(CORE + ['watchtower'] + [service for entry in entries.values() for service in entry['services']])
+        if rows - known:
+            raise ConfigError('Existing project contains unrecognized services. Review its private inventory before selecting modules.')
+        values = []
+        for name, entry in entries.items():
+            deployed = set(entry['services']) & rows
+            if deployed:
+                if deployed != set(entry['services']):
+                    raise ConfigError('An installed module has a partial service set. Review the migration explicitly instead of silently enabling additional services.')
+                values.append(name)
+        resolved = resolve(values)
+        if set(resolved) != set(values):
+            raise ConfigError('Installed services are missing a new declared module dependency; review migration before expanding the deployment.')
     elif preset in ('standard', 'core'):
-        values = ['health'] if preset == 'standard' else []
+        values = resolve(['health'] if preset == 'standard' else [])
     else:
         raise ConfigError('Choose --existing for migration or an explicit --preset standard/core for a new installation.')
     if not dry_run:

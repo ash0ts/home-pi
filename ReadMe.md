@@ -41,7 +41,7 @@ Choose DNS continuity explicitly: an independent second filtered resolver, or a 
 
 ## Development
 
-`setup.sh` is a thin dispatcher; `scripts/lib/config.py` owns paths, literal configuration loading, private writes, and argv-safe Docker execution. Commands resolve this checkout even when invoked from another directory or a path containing spaces. Static validation uses dummy configuration and never uploads a rendered production model. Optional service modules, backup/update workflows, and live evidence checks are added in subsequent layers of the implementation stack.
+`setup.sh` is a thin dispatcher; `scripts/lib/config.py` owns paths, literal configuration loading, private writes, and argv-safe Docker execution. Commands resolve this checkout even when invoked from another directory or a path containing spaces. Static validation uses dummy configuration and never uploads a rendered production model. Optional service definitions live in `modules/<id>/compose.yaml`. `./pi` delegates to the configuration, diagnostics, access, and recovery scripts; see [adding a service](docs/adding-a-service.md).
 
 ```bash
 ./tests/run.sh
@@ -61,3 +61,9 @@ Preserve Tailscale state and enroll once through an interactive session or a sho
 New configuration selects core plus Uptime Kuma. Existing installations run `./scripts/select.sh init --existing` to preserve observed project services. See [private access and route registration](docs/access.md) before changing any listener. Run `python3 -B scripts/access.py plan` to review the selected HTTPS routes.
 
 Encrypted backups and fresh-target restores are available through `scripts/backup.sh` and `scripts/restore.sh`. Configure the private restic destination and a separately recoverable password as described in [recovery](docs/recovery.md). Backups stop only selected running writers while capturing state, then resume them before upload. Pi-hole backup requires an explicit DNS-interruption flag and a continuity plan. Restore keeps production DNS and Tailscale identities quarantined until deliberate cutover.
+
+## Optional modules
+
+`./pi modules` lists the catalog and enabled selection. `./pi plan --enable health` validates the model and shows its services, routes, mounts, and resource settings. For a new module, fetch its reviewed images with `./pi pull health`, then run `./pi enable health`. `./pi disable health` stops its services and removes its owned routes while preserving data and backups. Core DNS and remote access are not restarted. First-run application enrollment and monitor registration remain explicit pending steps.
+
+For a new install, `./pi pull` fetches all selected images before `./pi start`. An existing installation uses the backed-up update procedure; image downloads alone do not change running containers. Direct raw Compose applies to the root/core model only. For external storage, declare and verify the actual expected mount in `local/storage.json` before enabling dependent modules.

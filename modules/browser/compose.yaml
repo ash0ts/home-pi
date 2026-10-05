@@ -1,0 +1,24 @@
+services:
+  webtop:
+    image: lscr.io/linuxserver/webtop:debian-xfce
+    container_name: webtop
+    ports:
+      - "${ADMIN_BIND_IP:-127.0.0.1}:3002:3001" # https://PI-IP:3002
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - CUSTOM_USER=${WEBTOP_USER:-user}
+      - PASSWORD=${WEBTOP_PASSWORD}
+    volumes:
+      - ./webtop/config:/config
+    shm_size: "4g" # Pi 5 16GB can handle more for smoother browsing
+    security_opt:
+      - seccomp:unconfined # required for Docker-in-Docker if needed
+    networks: [browser]
+    restart: unless-stopped
+
+  # ===== Management & Monitoring Additions =====
+
+networks:
+  browser:

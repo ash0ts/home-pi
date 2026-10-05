@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import access
+import modules
 from lib import selection
 from lib.config import ConfigError
 
@@ -65,10 +66,11 @@ class AccessTests(unittest.TestCase):
             self.assertFalse(any('--bg' in call for call in calls))
 
     def test_selection_preserves_existing_apps_and_never_starts(self):
-        with tempfile.TemporaryDirectory() as directory, patch.object(selection, 'ROOT', Path(directory)), patch.object(selection, 'load_env', return_value={'COMPOSE_PROJECT_NAME': 'old'}), patch.object(selection, 'docker', return_value=SimpleNamespace(stdout='pihole\nwebtop\nportainer\nwatchtower\n')) as call:
+        with tempfile.TemporaryDirectory() as directory, patch.object(selection, 'ROOT', Path(directory)), patch.object(selection, 'load_env', return_value={'COMPOSE_PROJECT_NAME': 'old'}), patch.object(selection, 'docker', return_value=SimpleNamespace(stdout='pihole\nwebtop\nportainer\ndozzle\nwatchtower\n')) as call:
             self.assertEqual(selection.initialize(existing=True), ['administration', 'browser'])
             self.assertEqual(call.call_args.args[0], 'ps')
-            self.assertEqual(selection.initialize(preset='standard'), ['administration', 'browser'])
+            with patch.object(selection, 'selected', return_value=['administration', 'browser']):
+                self.assertEqual(selection.initialize(preset='standard'), ['administration', 'browser'])
 
     def test_unknown_migration_service_is_not_silently_dropped(self):
         with tempfile.TemporaryDirectory() as directory, patch.object(selection, 'ROOT', Path(directory)), patch.object(selection, 'load_env', return_value={'COMPOSE_PROJECT_NAME': 'old'}), patch.object(selection, 'docker', return_value=SimpleNamespace(stdout='pihole\nunrecognized\n')):

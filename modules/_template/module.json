@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "example",
+  "description": "Replace with the concrete household use and maintenance responsibility.",
+  "services": ["example"],
+  "requires": [],
+  "access": [{"service": "example", "title": "Example", "https_port": 8451, "scheme": "http", "path": "/", "auth": "application account required"}],
+  "state": [{"service": "example", "target": "/data", "kind": "essential", "consistency": "stop"}],
+  "secrets": ["EXAMPLE_PASSWORD"]
+}

@@ -27,6 +27,7 @@ class SetupTests(unittest.TestCase):
         shutil.copy2(REPO / "setup.sh", self.root / "setup.sh")
         shutil.copy2(REPO / "docker-compose.yaml", self.root / "docker-compose.yaml")
         shutil.copytree(REPO / "scripts", self.root / "scripts", ignore=shutil.ignore_patterns("__pycache__"))
+        shutil.copytree(REPO / "modules", self.root / "modules")
         self.fakebin = Path(self.temporary.name) / "bin"
         self.fakebin.mkdir()
         self.calls = Path(self.temporary.name) / "calls.jsonl"
@@ -128,11 +129,12 @@ class SetupTests(unittest.TestCase):
         self.assertFalse(self.calls.exists())
         hostile.pop("COMPOSE_FILE")
         hostile.pop("COMPOSE_PROFILES")
-        with patch.object(config, "ROOT", self.root), patch.dict(os.environ, hostile), patch("lib.selection.selected", return_value=["health"]):
+        with patch.object(config, "ROOT", self.root), patch.dict(os.environ, hostile), patch("modules.compose_files", return_value=[self.root / "docker-compose.yaml", self.root / "modules/health/compose.yaml"]):
             config.run_compose("ps", "--format", "table {{.Names}}\t{{.Status}}")
         call = json.loads(self.calls.read_text())
         expected = ["compose", "--project-directory", str(self.root), "--env-file", str(self.root / ".env"),
-                    "--project-name", "retained-project", "--profile", "health", "-f", str(self.root / "docker-compose.yaml"),
+                    "--project-name", "retained-project", "-f", str(self.root / "docker-compose.yaml"),
+                    "-f", str(self.root / "modules/health/compose.yaml"),
                     "ps", "--format", "table {{.Names}}\t{{.Status}}"]
         self.assertEqual(call["args"], expected)
         self.assertEqual(call["env"], {})

@@ -23,11 +23,13 @@ created. `home.arpa` names do not acquire tailnet certificates.
 
 ## Selection and migration
 
-New configuration selects core plus the `health` profile. Diagnostics,
-administration, and browser profiles are opt-in. One ignored
+New configuration selects core plus the `health` module. Diagnostics,
+administration, and browser modules are opt-in. One ignored
 `local/selection.json` is authoritative; inherited `COMPOSE_FILE` and
 `COMPOSE_PROFILES` are rejected. Raw `docker compose` starts core only; managed
 commands apply the selection and preserve the recorded project name.
+
+Each selected module contributes one ordered Compose file. Inactive modules are omitted entirely, so they need no credentials.
 
 Existing installations must run `./scripts/select.sh init --existing` after
 inventory and private configuration. It imports all known existing project

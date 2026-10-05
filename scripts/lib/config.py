@@ -113,11 +113,13 @@ def compose_args(env_file=None, project_name=None, files=None):
         raise ConfigError("COMPOSE_PROJECT_NAME is missing or invalid. Inventory the installed name before configuring; never guess during migration.")
     result = ["compose", "--project-directory", str(ROOT), "--env-file", str(env_file),
               "--project-name", project_name]
-    if files is None and env_file == ROOT / ".env":
-        from lib.selection import selected
-        for profile in selected():
-            result.extend(["--profile", profile])
-    for path in files or [ROOT / "docker-compose.yaml"]:
+    if files is None:
+        if env_file == ROOT / ".env":
+            from modules import compose_files
+            files = compose_files()
+        else:
+            files = [ROOT / "docker-compose.yaml"]
+    for path in files:
         result.extend(["-f", str(path)])
     return result
 

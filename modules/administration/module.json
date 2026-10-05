@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "administration",
+  "description": "Privileged Docker management and container logs.",
+  "services": [
+    "portainer",
+    "dozzle"
+  ],
+  "requires": [],
+  "access": [
+    {
+      "service": "portainer",
+      "title": "Portainer",
+      "https_port": 8447,
+      "scheme": "https+insecure",
+      "path": "/",
+      "auth": "application"
+    },
+    {
+      "service": "dozzle",
+      "title": "Dozzle",
+      "https_port": 8448,
+      "scheme": "http",
+      "path": "/",
+      "auth": "tailnet"
+    }
+  ],
+  "state": [
+    {
+      "service": "portainer",
+      "target": "/data",
+      "kind": "essential",
+      "consistency": "stop"
+    }
+  ],
+  "secrets": []
+}

@@ -1,0 +1,13 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    ports:
+      - "${ADMIN_BIND_IP:-127.0.0.1}:3001:3001" # http://PI-IP:3001
+    volumes:
+      - ./uptime-kuma/data:/app/data
+    networks: [health]
+    restart: unless-stopped
+
+networks:
+  health:

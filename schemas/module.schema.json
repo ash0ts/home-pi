@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ash0ts/home-pi/schemas/module.schema.json",
+  "title": "Home Pi module metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "description", "services", "requires", "access", "state", "secrets"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,47}$"},
+    "description": {"type": "string", "minLength": 1},
+    "services": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,47}$"}},
+    "requires": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,47}$"}},
+    "secrets": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"}},
+    "access": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["service", "title", "https_port", "scheme", "path", "auth"],
+      "properties": {
+        "service": {"type": "string"}, "title": {"type": "string", "minLength": 1},
+        "https_port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "scheme": {"enum": ["http", "https", "https+insecure"]}, "path": {"type": "string", "pattern": "^/"},
+        "auth": {"type": "string", "minLength": 1}
+      }
+    }},
+    "state": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["service", "target", "kind", "consistency"],
+      "properties": {
+        "service": {"type": "string"}, "target": {"type": "string", "pattern": "^/"},
+        "kind": {"enum": ["essential", "history", "cache"]},
+        "consistency": {"const": "stop"}, "reason": {"type": "string", "minLength": 1}
+      }
+    }}
+  }
+}
