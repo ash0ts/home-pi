@@ -22,11 +22,12 @@ def completed(stdout="", returncode=0, stderr=""):
 
 class DoctorTests(unittest.TestCase):
     def test_disabled_services_and_explicit_scope(self):
+        # Compose already filters disabled profiles; enabled ones retain profiles metadata.
         model = {"services": {"pihole": {}, "webtop": {"profiles": ["browser"]}}}
-        self.assertEqual(doctor.selected_services(model, {}), ["pihole"])
-        self.assertEqual(doctor.selected_services(model, {"COMPOSE_PROFILES": "browser"}), ["pihole", "webtop"])
+        self.assertEqual(doctor.selected_services(model, {}), ["pihole", "webtop"])
+        self.assertEqual(doctor.selected_services(model, {}, ["webtop"]), ["webtop"])
         with self.assertRaises(doctor.ConfigError):
-            doctor.selected_services(model, {}, ["webtop"])
+            doctor.selected_services({"services": {"pihole": {}}}, {}, ["webtop"])
 
     def test_stopped_required_service_fails(self):
         with patch.object(doctor, "run_compose", return_value=completed("a" * 64)), patch.object(doctor, "docker", return_value=completed('["exited", "none", []]')):
@@ -85,6 +86,15 @@ class DoctorTests(unittest.TestCase):
         self.assertEqual(result["status"], "NEEDS_CONFIGURATION")
         self.assertNotIn("private-device", json.dumps(result))
         self.assertNotIn("secret", json.dumps(result))
+
+    def test_actual_bindings_must_match_declared_policy(self):
+        spec = {"ports": [{"host_ip": "127.0.0.1", "published": "8080", "target": 8080}]}
+        response = completed(json.dumps({"8080/tcp": [{"HostIp": "0.0.0.0", "HostPort": "8080"}]}))
+        with patch.object(doctor, "docker", return_value=response):
+            self.assertEqual(doctor.listener_observation("homer", "a" * 64, spec)["status"], "FAIL")
+        response.stdout = json.dumps({"8080/tcp": [{"HostIp": "127.0.0.1", "HostPort": "8080"}]})
+        with patch.object(doctor, "docker", return_value=response):
+            self.assertEqual(doctor.listener_observation("homer", "a" * 64, spec)["status"], "PASS")
 
     def test_dns_empty_success_is_not_healthy(self):
         with patch.object(doctor, "dns_query", return_value=("NOERROR", [])):

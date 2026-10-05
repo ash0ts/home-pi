@@ -42,7 +42,7 @@ def validate():
         variables.update(re.findall(r"^([A-Za-z_][A-Za-z0-9_]*)=", dummy_text, re.MULTILINE))
         for key in variables | {"COMPOSE_FILE", "COMPOSE_PROFILES", "COMPOSE_PROJECT_NAME", "COMPOSE_ENV_FILES"}:
             child_env.pop(key, None)
-        result = subprocess.run(["docker", *compose_args(env_file=env_file, project_name="home-pi-validation"), "config", "--quiet"],
+        result = subprocess.run(["docker", *compose_args(env_file=env_file, project_name="home-pi-validation"), "--profile", "*", "config", "--quiet"],
                                 cwd=ROOT, env=child_env, capture_output=True, text=True)
         if result.returncode:
             raise ConfigError("Compose model validation failed with dummy settings; run a local dummy configuration check to diagnose. Production values were not used.")

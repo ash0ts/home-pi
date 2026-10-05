@@ -34,6 +34,8 @@ def preflight():
     run_compose("config", "--quiet")
     model = json.loads(run_compose("config", "--format", "json").stdout)
     validate_services(env, model["services"])
+    from access import validate_access
+    validate_access(model, env)
     check_ownership(env, model["services"])
     if any(service.get("network_mode") == "host" and "tailscale" in name for name, service in model["services"].items()):
         if not Path("/dev/net/tun").exists():
@@ -49,7 +51,7 @@ def preflight():
     expected = {(int(port["published"]), port.get("protocol", "tcp"))
                 for service in model["services"].values() for port in service.get("ports", []) if port.get("published")}
     if model["services"].get("pihole", {}).get("network_mode") == "host":
-        expected.update({(53, "tcp"), (53, "udp"), (80, "tcp"), (443, "tcp")})
+        expected.update({(53, "tcp"), (53, "udp"), (8081, "tcp")})
     observed = subprocess.run(["ss", "-H", "-lntu"], capture_output=True, text=True, check=True)
     conflicts = set()
     for line in observed.stdout.splitlines():

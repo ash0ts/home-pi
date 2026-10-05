@@ -104,6 +104,8 @@ def docker(*args, capture=True, check=True, timeout=60):
 
 
 def compose_args(env_file=None, project_name=None, files=None):
+    if os.environ.get("COMPOSE_FILE") or os.environ.get("COMPOSE_PROFILES"):
+        raise ConfigError("Unset COMPOSE_FILE and COMPOSE_PROFILES; managed commands use the checkout selection only.")
     env_file = Path(env_file) if env_file else ROOT / ".env"
     if project_name is None:
         project_name = load_env(env_file).get("COMPOSE_PROJECT_NAME", "")
@@ -111,6 +113,10 @@ def compose_args(env_file=None, project_name=None, files=None):
         raise ConfigError("COMPOSE_PROJECT_NAME is missing or invalid. Inventory the installed name before configuring; never guess during migration.")
     result = ["compose", "--project-directory", str(ROOT), "--env-file", str(env_file),
               "--project-name", project_name]
+    if files is None and env_file == ROOT / ".env":
+        from lib.selection import selected
+        for profile in selected():
+            result.extend(["--profile", profile])
     for path in files or [ROOT / "docker-compose.yaml"]:
         result.extend(["-f", str(path)])
     return result
