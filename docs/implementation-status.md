@@ -24,6 +24,23 @@ Home Assistant HTTP probe and retained its configuration through recreation.
 The fixture did not test host forwarding, owner login, real devices or restore;
 its exact containers/network were removed. CI runs the restic fixture separately.
 
+The optional `files` module adds Syncthing 2.1.5 with a non-root process, private
+GUI, no published incoming sync ports, disabled native upgrades and complete
+stop-consistent identity/config/index/file state. Its multi-platform and ARM64
+child manifests were verified from the registry.
+
+A disposable internal ARM64 two-peer fixture verified native health, empty
+initial folder selection, explicit pairing, direct file/edit sync, retained
+identity after recreation, deletion propagation, and isolated identity/file
+restoration from a stopped-writer copy. It contacted no household peers; its
+containers/network were removed. This was not encrypted off-device recovery,
+mobile support, guest isolation, conflict acceptance or a real Pi capacity test.
+
+The complete local suite ran 143 tests successfully (one existing encryption
+fixture skipped because restic is unavailable); static validation, YAML lint and
+all 13 registry ARM64 checks passed. The owner confirmed the Pi is not set up
+yet. Live checklist items remain pending, and both new modules remain opt-in.
+
 Implemented from the supplied plan on 2026-10-05, starting at
 `e7dd701654a4184ae31bb7ea527ac7a90d917ade`. The user requested a leaner stack:
 seven dependent PRs, with native application configuration and manual operations

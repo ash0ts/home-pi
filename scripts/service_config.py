@@ -69,7 +69,7 @@ def validate_services(env, services):
             raise ConfigError('Existing custom dnsmasq files found. Review them and explicitly set PIHOLE_CUSTOM_DNSMASQ=true to retain their effect before migration.')
     if 'speedtest-tracker' in selected and not valid_app_key(env.get('SPEEDTEST_APP_KEY', '')):
         raise ConfigError('Selected Speedtest requires a valid existing APP_KEY. Back up and follow encryption-key migration; do not rotate it silently.')
-    if selected & {'speedtest-tracker', 'webtop'}:
+    if selected & {'speedtest-tracker', 'webtop', 'syncthing'}:
         for key in ('PUID', 'PGID'):
             if not env.get(key, '').isdigit() or int(env[key]) == 0:
                 raise ConfigError(f'{key} must identify the non-root application owner.')
@@ -78,7 +78,7 @@ def validate_services(env, services):
 
 
 def check_ownership(env, services):
-    for service, path in [('speedtest-tracker', 'speedtest-tracker/config'), ('webtop', 'webtop/config')]:
+    for service, path in [('speedtest-tracker', 'speedtest-tracker/config'), ('webtop', 'webtop/config'), ('syncthing', 'syncthing')]:
         if service not in services:
             continue
         target = ROOT / path

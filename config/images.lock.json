@@ -213,6 +213,25 @@
         "https://www.home-assistant.io/installation/linux/",
         "https://www.home-assistant.io/integrations/http/"
       ]
+    },
+    {
+      "service": "syncthing",
+      "repository": "syncthing/syncthing",
+      "tag": "2.1.5",
+      "digest": "sha256:397aa00b92b48d65540ea3ae3cbf271b87bdccbe07a0b7bd7d2debc3a7b29138",
+      "reference": "syncthing/syncthing:2.1.5@sha256:397aa00b92b48d65540ea3ae3cbf271b87bdccbe07a0b7bd7d2debc3a7b29138",
+      "arm64_digest": "sha256:a654f827a3736b48174ef3da14fe832193cde7a313860b411eb48b964fb427e1",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64",
+        "linux/arm/v7"
+      ],
+      "verified_at": "2026-10-05",
+      "documentation": [
+        "https://github.com/syncthing/syncthing/releases/tag/v2.1.5",
+        "https://github.com/syncthing/syncthing/blob/v2.1.5/README-Docker.md",
+        "https://docs.syncthing.net/users/faq.html"
+      ]
     }
   ]
 }
