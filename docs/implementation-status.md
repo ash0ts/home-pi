@@ -1,5 +1,7 @@
 # Delivery and validation
 
+Continue from the ordered [remaining-work checklist](TODO.md); this document records the delivered baseline and its evidence.
+
 Implemented from the supplied plan on 2026-10-05, starting at
 `e7dd701654a4184ae31bb7ea527ac7a90d917ade`. The user requested a leaner stack:
 seven dependent PRs, with native application configuration and manual operations
