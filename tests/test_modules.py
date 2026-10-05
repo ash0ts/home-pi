@@ -1,5 +1,4 @@
 """Module operations run in temporary repositories with command stubs."""
-import importlib.util
 import json
 import os
 from pathlib import Path
@@ -13,16 +12,8 @@ import unittest
 from unittest.mock import patch
 
 REPO = Path(__file__).resolve().parents[1]
-# Draft runner can load this file before the module layer is promoted.
-if not (REPO / 'scripts/lib/config.py').exists():
-    REPO = Path.cwd()
 sys.path.insert(0, str(REPO / 'scripts'))
-if (REPO / 'scripts/modules.py').exists():
-    import modules
-else:
-    spec = importlib.util.spec_from_file_location('modules', REPO / '.context/implementation/modules/scripts/modules.py')
-    modules = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(modules)
+import modules
 from lib import config
 
 
