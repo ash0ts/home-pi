@@ -356,9 +356,10 @@ def listener_observation(service, container_id, spec):
     if service == "pihole":
         output = docker("exec", container_id, "pihole-FTL", "--config", "webserver.port", check=False)
         dns = docker("exec", container_id, "pihole-FTL", "--config", "dns.listeningMode", check=False)
-        okay = not output.returncode and not dns.returncode and output.stdout.strip().strip('"') == "127.0.0.1:8081" and dns.stdout.strip().strip('"') == "LOCAL"
-        # FTL versions may print the enum in lowercase.
-        okay = okay or (not output.returncode and not dns.returncode and output.stdout.strip().strip('"') == "127.0.0.1:8081" and dns.stdout.strip().strip('"').lower() == "local")
+        mode = str(spec.get('environment', {}).get('FTLCONF_dns_listeningMode', 'local')).lower()
+        okay = (mode in {'local', 'all'} and not output.returncode and not dns.returncode
+                and output.stdout.strip().strip('"') == "127.0.0.1:8081"
+                and dns.stdout.strip().strip('"').lower() == mode)
     elif spec.get("ports"):
         response = docker("inspect", "--format", "{{json .NetworkSettings.Ports}}", container_id, check=False)
         try:

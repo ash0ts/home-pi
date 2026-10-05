@@ -19,6 +19,7 @@ from application login and allowed/denied client verification.
 | Webtop | Loopback HTTPS3002 | 8449 | Granted users + Webtop password; browser privacy is a separate gate |
 
 The external URL is `https://ACTUAL_NODE.ts.net:PORT` (443 may be omitted).
+Remote DNS is a separate opt-in [network setup](network.md#use-pi-hole-while-away).
 No public Funnel, router forward, exit-node, or subnet-route configuration is
 created. `home.arpa` names do not acquire tailnet certificates.
 

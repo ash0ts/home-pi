@@ -34,6 +34,7 @@ The code and automated checks are in place. Checks on the actual Pi and home net
 | Back up or recover my data | [Backup and recovery](docs/recovery.md) |
 | Update the apps | [Reviewed updates](docs/updates.md) |
 | Set up dashboard links, monitoring and schedules | [Everyday operations](docs/operations.md) |
+| Organize devices, guest Wi-Fi and DNS filtering at home or away | [Start with your network](docs/network.md) |
 | Try the feed reader or private browser | [Reading](modules/reading/README.md) · [Browser](modules/browser/README.md) |
 
 Working on the repository? Start with the [agent skill](.agents/skills/home-pi/SKILL.md) and [contributor rules](AGENTS.md). The [module guide](docs/adding-a-service.md) explains how to add a service.

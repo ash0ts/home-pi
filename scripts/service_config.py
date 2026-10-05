@@ -49,9 +49,19 @@ def check_compose_version(value):
         raise ConfigError('Compose 2.24.0 or newer is required for supported model and bounded readiness commands.')
 
 
+def validate_dns_mode(env):
+    mode = env.get('PIHOLE_LISTENING_MODE', 'local').lower()
+    if mode not in {'local', 'all'}:
+        raise ConfigError('PIHOLE_LISTENING_MODE must be local or all. Existing configuration was preserved.')
+    if mode == 'all' and env.get('ACK_REMOTE_DNS') != 'yes':
+        raise ConfigError('Remote DNS requires ACK_REMOTE_DNS=yes after reviewing docs/network.md and the actual firewall/tailnet boundaries. No network policy was changed.')
+    return mode
+
+
 def validate_services(env, services):
     selected = set(services)
     if 'pihole' in selected:
+        validate_dns_mode(env)
         if not env.get('PIHOLE_PASSWORD') or not env.get('PIHOLE_DNS'):
             raise ConfigError('Pi-hole requires PIHOLE_PASSWORD and PIHOLE_DNS in private configuration.')
         custom = ROOT / 'pihole' / 'etc-dnsmasq.d'

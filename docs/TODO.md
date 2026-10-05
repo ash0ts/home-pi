@@ -1,8 +1,25 @@
 # Remaining work
 
-The implementation stack is merged through [`262f01a`](https://github.com/ash0ts/home-pi/commit/262f01a), with 129 tests and all seven PR checks passing at handoff. See [delivery evidence](implementation-status.md). The remaining work is deployment and verification; do not rebuild the completed tooling.
+The implementation stack is merged through [`262f01a`](https://github.com/ash0ts/home-pi/commit/262f01a), with 129 tests and all seven PR checks passing at handoff. The README/agent handoff is merged in [PR #9](https://github.com/ash0ts/home-pi/pull/9). See [delivery evidence](implementation-status.md). Continue the live checklist below; do not rebuild the completed tooling.
 
-**Next action:** help the owner find the Pi and confirm how to connect, then perform read-only inventory. Its address, login and existing checkout path are not known yet. Keep actual host, project and device details in ignored `local/`, not this checklist. No live deployment, network changes or notifications have been authorized by this documentation PR.
+**Next action:** help the owner find the Pi and confirm how to connect, then perform read-only inventory. Its address, login and existing checkout path are not known yet. Keep actual host, project and device details in ignored `local/`, not this checklist. No live deployment, network changes or notifications have been performed. The owner requested the useful-home extensions; repository preparation can proceed while hardware access is unknown.
+
+## Useful-home extensions
+
+The owner selected these extensions on 2026-10-05. Repository delivery and live
+acceptance are separate; do not mark either complete using evidence from the other.
+
+- [x] Prepare [network setup](network.md): device names, conservative Pi-hole profiles, guest boundaries, remote DNS and native monitoring. Remote DNS defaults off and requires explicit boundary review before a scoped Pi-hole change.
+- [ ] Deliver an optional Home Assistant Container module with private access and recoverable state.
+- [ ] Deliver an optional Syncthing module with selected-folder pairing and independent recovery.
+- [ ] Verify network setup on one personal client, then expand only after DNS continuity and guest/IPv6 checks pass.
+- [ ] Verify remote DNS from allowed/denied off-LAN clients and test loss/recovery of home connectivity.
+- [ ] Enroll Kuma monitors and optional speed history; test phone notifications and an off-Pi observer if full outage alerts are wanted.
+- [ ] Select one real automation device; verify useful behavior, reconnect, state restoration and DNS capacity with Home Assistant enabled.
+- [ ] Select one personal computer/folder; verify sync, conflict/deletion behavior, independent file recovery and DNS capacity.
+
+Hardware access, automation devices and folder choices remain unknown. Native
+settings and acceptance procedures are prepared; the live items remain unchecked.
 
 The owner does not need to know SSH terminology. When ready, find the Pi in the router's connected-device list, or use its local terminal: `hostname -I` shows its addresses and `whoami` shows the current username. Confirm those belong to the intended Pi. Use a previously working saved connection if available; otherwise guide the owner through checking SSH status on the Pi before connecting. Do not guess default credentials, enable remote access or scan the network to fill this gap. If access is unavailable, keep the live checklist pending.
 
