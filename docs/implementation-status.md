@@ -4,6 +4,11 @@ Continue from the ordered [remaining-work checklist](TODO.md); this document rec
 
 ## Useful-home follow-up
 
+Delivered as [network setup (#10)](https://github.com/ash0ts/home-pi/pull/10),
+[Home Assistant (#11)](https://github.com/ash0ts/home-pi/pull/11), and
+[Syncthing (#12)](https://github.com/ash0ts/home-pi/pull/12). CI on each PR is the
+authoritative check record; these changes do not deploy to the household.
+
 The owner selected network setup, remote DNS, automation and selected-folder sync
 on 2026-10-05. The [network guide](network.md) prepares native device profiles,
 guest boundary checks and monitoring. Pi-hole retains local DNS by default;
@@ -23,6 +28,23 @@ checks passed. A disposable ARM64 fixture on an internal Docker network ran the
 Home Assistant HTTP probe and retained its configuration through recreation.
 The fixture did not test host forwarding, owner login, real devices or restore;
 its exact containers/network were removed. CI runs the restic fixture separately.
+
+The optional `files` module adds Syncthing 2.1.5 with a non-root process, private
+GUI, no published incoming sync ports, disabled native upgrades and complete
+stop-consistent identity/config/index/file state. Its multi-platform and ARM64
+child manifests were verified from the registry.
+
+A disposable internal ARM64 two-peer fixture verified native health, empty
+initial folder selection, explicit pairing, direct file/edit sync, retained
+identity after recreation, deletion propagation, and isolated identity/file
+restoration from a stopped-writer copy. It contacted no household peers; its
+containers/network were removed. This was not encrypted off-device recovery,
+mobile support, guest isolation, conflict acceptance or a real Pi capacity test.
+
+The complete local suite passed all 143 tests with no skips after using the
+existing test-only restic binary for the encrypted recovery fixture. Static
+validation, YAML lint and all 13 registry ARM64 checks passed. The owner confirmed the Pi is not set up
+yet. Live checklist items remain pending, and both new modules remain opt-in.
 
 Implemented from the supplied plan on 2026-10-05, starting at
 `e7dd701654a4184ae31bb7ea527ac7a90d917ade`. The user requested a leaner stack:

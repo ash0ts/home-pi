@@ -26,6 +26,7 @@ netdata/
 portainer/
 freshrss/
 /home-assistant/
+/syncthing/
 data/
 
 # Generated service configuration (tracked templates live under config/)

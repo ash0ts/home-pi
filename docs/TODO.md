@@ -11,7 +11,7 @@ acceptance are separate; do not mark either complete using evidence from the oth
 
 - [x] Prepare [network setup](network.md): device names, conservative Pi-hole profiles, guest boundaries, remote DNS and native monitoring. Remote DNS defaults off and requires explicit boundary review before a scoped Pi-hole change.
 - [x] Deliver an optional [Home Assistant Container module](../modules/home/README.md) with loopback/private access, stop-consistent state and isolated networking. No hardware or integrations are selected automatically.
-- [ ] Deliver an optional Syncthing module with selected-folder pairing and independent recovery.
+- [x] Deliver an optional [Syncthing module](../modules/files/README.md) with private admin access, explicit pairing, full stop-consistent state and independent recovery instructions. No incoming sync ports or folder choices are published automatically.
 - [ ] Verify network setup on one personal client, then expand only after DNS continuity and guest/IPv6 checks pass.
 - [ ] Verify remote DNS from allowed/denied off-LAN clients and test loss/recovery of home connectivity.
 - [ ] Enroll Kuma monitors and optional speed history; test phone notifications and an off-Pi observer if full outage alerts are wanted.
@@ -38,7 +38,7 @@ Check a box only when its completion evidence exists. Record a short redacted re
 
 ## Deferred by design
 
-- E4 file sync: wait for specific folders/devices and independent backup requirements.
+- E4 live file sync: the optional module is prepared; pairing and acceptance wait for specific personal folders/devices and independent backups.
 - E5 live home automation: the optional module is prepared; device pairing and acceptance wait for an actual device/integration and hardware choice.
 - Custom portal generation, alert engines and measurement frameworks: use native tools and short runbooks unless a demonstrated requirement changes that decision.
 
@@ -48,4 +48,4 @@ Use the repository [home-pi skill](../.agents/skills/home-pi/SKILL.md). A new se
 
 > Read AGENTS.md, the home-pi skill and docs/TODO.md. Verify the current branch/PR and delivery evidence, then continue the first unchecked item whose inputs and authorization are available. Keep the change small and use existing tools/runbooks. Do not repeat completed implementation or turn repository work into live deployment. Update the checklist with observed evidence and leave a concrete next action.
 
-Current handoff: the baseline above is merged; the Pi is not set up yet. Guide first boot in plain language, then confirm access before live inventory. Finish the selected repository extensions independently and leave unavailable hardware checks open. Do not request an unexplained SSH target or add more automation to fill the access gap.
+Current handoff: the baseline above is merged; the Pi is not set up yet. Guide first boot in plain language, then confirm access before live inventory. The selected repository extensions are delivered in [PRs #10–#12](https://github.com/ash0ts/home-pi/pull/12); continue their live acceptance only when the hardware is ready. Do not request an unexplained SSH target or add more automation to fill the access gap.

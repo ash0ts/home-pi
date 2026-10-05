@@ -1,0 +1,23 @@
+services:
+  syncthing:
+    image: syncthing/syncthing:2.1.5@sha256:397aa00b92b48d65540ea3ae3cbf271b87bdccbe07a0b7bd7d2debc3a7b29138
+    user: "${PUID:-1000}:${PGID:-1000}"
+    environment:
+      TZ: ${TZ:-Etc/UTC}
+      UMASK: "077"
+      STGUIADDRESS: http://0.0.0.0:8384
+    command: [serve, --no-upgrade, --no-port-probing]
+    ports:
+      - "127.0.0.1:8384:8384"
+    volumes:
+      - ./syncthing:/var/syncthing
+    networks: [files]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: "3"}
+networks:
+  files:
+    driver: bridge
