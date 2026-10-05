@@ -1,0 +1,20 @@
+# This template is deliberately not selected or runnable. Replace the image
+# placeholder with an upstream-verified ARM64 release AND its actual digest.
+services:
+  example:
+    image: ${EXAMPLE_IMAGE:?Choose a reviewed ARM64 image with an immutable digest}
+    ports:
+      - "${ADMIN_BIND_IP:-127.0.0.1}:8083:8080"
+    environment:
+      EXAMPLE_PASSWORD: ${EXAMPLE_PASSWORD:?Configure the application's secret privately}
+    volumes:
+      - ./example/data:/data
+    networks: [example]
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+networks:
+  example:

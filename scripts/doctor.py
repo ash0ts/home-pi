@@ -150,8 +150,22 @@ def http_endpoint(service, model):
         match = re.fullmatch(r"(?:127\.0\.0\.1:)?([0-9]+)", str(value))
         return (int(match[1]), "http", "/admin/") if match else None
     if service not in HTTP:
-        return None
-    target, scheme, path = HTTP[service]
+        try:
+            from modules import catalog
+            routes = [row for entry in catalog().values() for row in entry['access'] if row['service'] == service]
+        except (ImportError, ConfigError):
+            routes = []
+        if not routes:
+            return None
+        route = routes[0]
+        spec = model['services'][service]
+        owner = model['services'].get(str(spec.get('network_mode', '')).removeprefix('service:'), spec)
+        ports = owner.get('ports', [])
+        if len(ports) != 1:
+            return None
+        target, scheme, path = int(ports[0]['target']), route['scheme'].replace('+insecure', ''), route['path']
+    else:
+        target, scheme, path = HTTP[service]
     spec = model["services"][service]
     if str(spec.get("network_mode", "")).startswith("service:"):
         spec = model["services"].get(spec["network_mode"].split(":", 1)[1], {})
@@ -377,8 +391,9 @@ def collect(env, model, services):
             listener = listener_observation(service, container_id, model["services"][service])
             if listener:
                 results.append(listener)
-            if service in HTTP or service == "pihole":
-                results.append(http_observation(service, http_endpoint(service, model)))
+            endpoint = http_endpoint(service, model)
+            if endpoint is not None or service in HTTP or service == "pihole":
+                results.append(http_observation(service, endpoint))
             if service == "pihole":
                 results.append(upstream_observation(container_id, model["services"][service]))
                 results.extend(dns_observations(env))

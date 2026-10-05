@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "diagnostics",
+  "description": "Optional host metrics and ISP-route speed tests.",
+  "services": [
+    "speedtest-tracker",
+    "netdata"
+  ],
+  "requires": [],
+  "access": [
+    {
+      "service": "speedtest-tracker",
+      "title": "Speedtest",
+      "https_port": 8445,
+      "scheme": "http",
+      "path": "/",
+      "auth": "application"
+    },
+    {
+      "service": "netdata",
+      "title": "Netdata",
+      "https_port": 8446,
+      "scheme": "http",
+      "path": "/",
+      "auth": "tailnet"
+    }
+  ],
+  "state": [
+    {
+      "service": "speedtest-tracker",
+      "target": "/config",
+      "kind": "essential",
+      "consistency": "stop"
+    },
+    {
+      "service": "netdata",
+      "target": "/etc/netdata",
+      "kind": "essential",
+      "consistency": "stop"
+    },
+    {
+      "service": "netdata",
+      "target": "/var/lib/netdata",
+      "kind": "essential",
+      "consistency": "stop"
+    },
+    {
+      "service": "netdata",
+      "target": "/var/cache/netdata",
+      "kind": "cache",
+      "consistency": "stop",
+      "reason": "Regenerable metrics history; retained config and library state are required."
+    }
+  ],
+  "secrets": [
+    "SPEEDTEST_APP_KEY"
+  ]
+}

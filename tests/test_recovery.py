@@ -73,7 +73,8 @@ class RecoveryTests(unittest.TestCase):
                                     'Source': '/var/lib/docker/volumes/existing_volume_identity/_data',
                                     'Destination': '/data', 'RW': True}]}
         self.events = []
-        self.patches = [mock.patch.object(backup, 'ROOT', self.root),
+        self.patches = [mock.patch('modules.metadata_for_services', return_value={}),
+                        mock.patch.object(backup, 'ROOT', self.root),
                         mock.patch.object(restore, 'ROOT', self.root),
                         mock.patch.object(backup, 'load_env', lambda: {'COMPOSE_PROJECT_NAME': 'fixture'}),
                         mock.patch.object(backup, 'compose_model', lambda: self.model),

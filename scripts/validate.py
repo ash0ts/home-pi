@@ -25,10 +25,13 @@ def validate():
     for name in ("bash", "shellcheck", "docker"):
         if not shutil.which(name):
             raise ConfigError(f"Static validation requires {name}. Install it before retrying.")
-    shells = [ROOT / "setup.sh", *sorted((ROOT / "scripts").rglob("*.sh")), *sorted((ROOT / "tests").rglob("*.sh"))]
+    shells = [ROOT / "pi", ROOT / "setup.sh", *sorted((ROOT / "scripts").rglob("*.sh")), *sorted((ROOT / "tests").rglob("*.sh"))]
     for path in shells:
         subprocess.run(["bash", "-n", str(path)], cwd=ROOT, check=True)
     subprocess.run(["shellcheck", "-x", *map(str, shells)], cwd=ROOT, check=True)
+    from modules import catalog, compose_files, resolve
+    entries = catalog()
+    files = compose_files(resolve(list(entries)))
     # Read .env.example, not the real .env. All expanded values stay in memory
     # inside Compose; neither model nor logs become artifacts.
     dummy_text = (ROOT / ".env.example").read_text()
@@ -38,11 +41,11 @@ def validate():
         env_file.write_text(dummy_text)
         env_file.chmod(0o600)
         child_env = os.environ.copy()
-        variables = set(re.findall(r"\$\{([A-Za-z_][A-Za-z0-9_]*)", (ROOT / "docker-compose.yaml").read_text()))
+        variables = set(re.findall(r"\$\{([A-Za-z_][A-Za-z0-9_]*)", "\n".join(path.read_text() for path in files)))
         variables.update(re.findall(r"^([A-Za-z_][A-Za-z0-9_]*)=", dummy_text, re.MULTILINE))
         for key in variables | {"COMPOSE_FILE", "COMPOSE_PROFILES", "COMPOSE_PROJECT_NAME", "COMPOSE_ENV_FILES"}:
             child_env.pop(key, None)
-        result = subprocess.run(["docker", *compose_args(env_file=env_file, project_name="home-pi-validation"), "--profile", "*", "config", "--quiet"],
+        result = subprocess.run(["docker", *compose_args(env_file=env_file, project_name="home-pi-validation", files=files), "--profile", "*", "config", "--quiet"],
                                 cwd=ROOT, env=child_env, capture_output=True, text=True)
         if result.returncode:
             raise ConfigError("Compose model validation failed with dummy settings; run a local dummy configuration check to diagnose. Production values were not used.")

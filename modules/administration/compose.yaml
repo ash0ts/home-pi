@@ -1,0 +1,35 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    ports:
+      - "${ADMIN_BIND_IP:-127.0.0.1}:9443:9443" # https://PI-IP:9443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks: [administration]
+    restart: unless-stopped
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    ports:
+      - "${ADMIN_BIND_IP:-127.0.0.1}:8888:8080" # http://PI-IP:8888
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=${TZ}
+    healthcheck:
+      test: ["CMD", "/dozzle", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks: [administration]
+    restart: unless-stopped
+
+volumes:
+  portainer_data:
+
+networks:
+  administration:
