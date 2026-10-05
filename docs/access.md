@@ -51,7 +51,7 @@ workflow; excluding its profile does not prove it stopped.
    backend (for example `ssh -L 9443:127.0.0.1:9443 USER@PI` for Portainer).
    Log in, replace any upstream default account credentials, and retain auth.
    Record completed services in mode0600 `local/access-enrollment.json`:
-   `{"schema_version":1,"services":["portainer","uptime-kuma"]}`.
+   `{"services":["portainer","uptime-kuma"]}`.
    This is owner confirmation, not an automated login test.
 4. Run `python3 -B scripts/access.py plan`; review URLs and ports, then
    `python3 -B scripts/access.py apply`. Pending enrollment prevents a route
