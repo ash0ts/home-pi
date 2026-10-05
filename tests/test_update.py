@@ -1,5 +1,4 @@
 """Reviewed updates use fake mutations and private temporary operation records."""
-import importlib.util
 import json
 from pathlib import Path
 import sys
@@ -9,15 +8,8 @@ import unittest
 from unittest.mock import patch
 
 REPO = Path(__file__).resolve().parents[1]
-if not (REPO / 'scripts/lib/config.py').exists():
-    REPO = Path.cwd()
 sys.path.insert(0, str(REPO / 'scripts'))
-if (REPO / 'scripts/update.py').exists():
-    import update
-else:
-    spec = importlib.util.spec_from_file_location('update', REPO / '.context/implementation/updates/scripts/update.py')
-    update = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(update)
+import update
 from lib.config import ConfigError
 
 CANDIDATE = 'a' * 40

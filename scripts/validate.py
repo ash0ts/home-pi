@@ -46,7 +46,7 @@ def validate_models():
         env_file.write_text(dummy_text)
         env_file.chmod(0o600)
         child_env = os.environ.copy()
-        variables = set(re.findall(r"\$\{([A-Za-z_][A-Za-z0-9_]*)", "\n".join(path.read_text() for path in files)))
+        variables = set(re.findall(r"\$\{?([A-Za-z_][A-Za-z0-9_]*)", "\n".join(path.read_text() for path in files)))
         variables.update(re.findall(r"^([A-Za-z_][A-Za-z0-9_]*)=", dummy_text, re.MULTILINE))
         for key in variables | {"COMPOSE_FILE", "COMPOSE_PROFILES", "COMPOSE_PROJECT_NAME", "COMPOSE_ENV_FILES"}:
             child_env.pop(key, None)

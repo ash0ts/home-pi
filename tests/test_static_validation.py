@@ -56,6 +56,13 @@ class StaticModelTests(unittest.TestCase):
         self.storage_reader.assert_not_called()
         self.private_selection.assert_not_called()
 
+    def test_bare_dollar_variable_cannot_inherit_ambient_private_values(self):
+        self.model['services']['reader']['environment']['EXTRA'] = '$UNLISTED_SETTING'
+        self.write()
+        with patch.dict(os.environ, {'UNLISTED_SETTING': 'SYNTHETIC-AMBIENT-SECRET'}):
+            model = static_validation.validate_models()
+        self.assertEqual(model['services']['reader']['environment']['EXTRA'], '')
+
     def test_compose_valid_unclassified_state_is_rejected(self):
         self.metadata['state'][0]['target'] = '/wrong-data-target'
         self.write()
