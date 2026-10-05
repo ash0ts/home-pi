@@ -12,6 +12,18 @@ Tests check the gate and observed-vs-declared listener modes with fake commands.
 No router/firewall/tailnet policy, notifications or client DNS settings were
 changed. The actual hardware and recovery checks below remain pending.
 
+The optional `home` module adds Home Assistant Container with an isolated bridge,
+loopback backend, private enrollment/proxy instructions and full `/config` backup
+classification. Its reviewed 2026.9.4 multi-platform manifest and ARM64 child were
+read from the registry; runtime/device behavior remains a separate live gate.
+
+Local follow-up validation: 137 tests ran successfully, with the existing restic
+encryption fixture skipped because restic is unavailable here; static Compose/shell/image
+checks passed. A disposable ARM64 fixture on an internal Docker network ran the
+Home Assistant HTTP probe and retained its configuration through recreation.
+The fixture did not test host forwarding, owner login, real devices or restore;
+its exact containers/network were removed. CI runs the restic fixture separately.
+
 Implemented from the supplied plan on 2026-10-05, starting at
 `e7dd701654a4184ae31bb7ea527ac7a90d917ade`. The user requested a leaner stack:
 seven dependent PRs, with native application configuration and manual operations
@@ -29,8 +41,9 @@ instead of custom portal, notification and measurement frameworks.
 
 E2's dashboard and notifications use Homer and Kuma's native configuration.
 There is no generated portal, custom alert daemon, monitor database editor or
-measurement command. E4 file sync and E5 home automation remain deferred until
-there is a concrete folder/device need. Optional applications stay disabled
+measurement command. At baseline delivery, E4 file sync and E5 home automation were deferred until
+there was a concrete folder/device need. The follow-up above prepares the selected
+modules; actual pairing and acceptance still require the owner’s devices. Optional applications stay disabled
 until selected; new installations select core plus Uptime Kuma.
 
 ## Evidence actually obtained

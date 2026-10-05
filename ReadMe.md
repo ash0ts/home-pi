@@ -15,6 +15,9 @@ New installations start with four services:
 
 Add other apps when you need them: **FreshRSS** for following blogs and news, a **Webtop browser with its own VPN**, or tools for speed tests, system stats and container management. These extras stay off until you choose them.
 
+Want to make the house more useful? Add [Home Assistant](modules/home/README.md)
+for one compatible device and a simple automation. It stays off until selected.
+
 Ad filtering, remote access and the browser VPN each do a different job. The browser VPN applies to that browser; it doesn’t put your whole home behind a VPN.
 
 ## Start here

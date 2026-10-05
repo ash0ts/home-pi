@@ -10,7 +10,7 @@ The owner selected these extensions on 2026-10-05. Repository delivery and live
 acceptance are separate; do not mark either complete using evidence from the other.
 
 - [x] Prepare [network setup](network.md): device names, conservative Pi-hole profiles, guest boundaries, remote DNS and native monitoring. Remote DNS defaults off and requires explicit boundary review before a scoped Pi-hole change.
-- [ ] Deliver an optional Home Assistant Container module with private access and recoverable state.
+- [x] Deliver an optional [Home Assistant Container module](../modules/home/README.md) with loopback/private access, stop-consistent state and isolated networking. No hardware or integrations are selected automatically.
 - [ ] Deliver an optional Syncthing module with selected-folder pairing and independent recovery.
 - [ ] Verify network setup on one personal client, then expand only after DNS continuity and guest/IPv6 checks pass.
 - [ ] Verify remote DNS from allowed/denied off-LAN clients and test loss/recovery of home connectivity.
@@ -39,7 +39,7 @@ Check a box only when its completion evidence exists. Record a short redacted re
 ## Deferred by design
 
 - E4 file sync: wait for specific folders/devices and independent backup requirements.
-- E5 home automation: wait for an actual device/integration and hardware choice.
+- E5 live home automation: the optional module is prepared; device pairing and acceptance wait for an actual device/integration and hardware choice.
 - Custom portal generation, alert engines and measurement frameworks: use native tools and short runbooks unless a demonstrated requirement changes that decision.
 
 ## Resume here

@@ -1,0 +1,23 @@
+services:
+  home-assistant:
+    image: ghcr.io/home-assistant/home-assistant:2026.9.4@sha256:3e6710a7ab2a61311d9d899b719f6c3657791c63e8f4942cec4ebc42401d6b76
+    environment:
+      TZ: ${TZ:-Etc/UTC}
+    ports:
+      - "127.0.0.1:8123:8123"
+    volumes:
+      - ./home-assistant/config:/config
+    networks: [home]
+    healthcheck:
+      test: [CMD, python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8123/', timeout=3).close()"]
+      interval: 30s
+      timeout: 5s
+      start_period: 120s
+      retries: 3
+    restart: unless-stopped
+    logging:
+      driver: local
+      options: {max-size: 10m, max-file: "3"}
+networks:
+  home:
+    driver: bridge
