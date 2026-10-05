@@ -133,6 +133,61 @@ class RecoveryTests(unittest.TestCase):
         self.assertFalse((self.root / 'local/backup-stage').exists())
         self.assertFalse((self.root / 'local/last-backup.json').exists())
 
+    def per_service_records(self):
+        return [{'service': name, 'container_id': name + '-id', 'was_running': True,
+                 'mounts': [{'target': '/data', 'kind': 'essential', 'consistency': 'stop'}]}
+                for name in ('pihole', 'webtop')]
+
+    def test_each_writer_restarts_before_next_service_is_paused(self):
+        events = []
+        records = self.per_service_records()
+        def docker(*args, **kwargs):
+            events.append((args[0], args[-1]))
+            return completed()
+        def copy(container, target, archive):
+            events.append(('copy', container))
+            make_tar(archive)
+        def restic(args, env, cwd=None):
+            if args[0] == 'backup':
+                events.append(('upload', 'all'))
+                return completed(json.dumps({'message_type': 'summary', 'snapshot_id': SNAPSHOT}))
+            return completed(json.dumps([{'id': SNAPSHOT}] if SNAPSHOT in args else []))
+        with mock.patch.object(backup, 'inventory', return_value=records), mock.patch.object(backup, 'docker', side_effect=docker), mock.patch.object(backup, 'copy_archive', side_effect=copy), mock.patch.object(backup, 'restic', side_effect=restic):
+            backup.create_backup(['pihole', 'webtop'], allow_dns_interruption=True, allow_local_repository=True)
+        self.assertEqual(events, [('stop', 'pihole-id'), ('copy', 'pihole-id'), ('start', 'pihole-id'),
+                                  ('stop', 'webtop-id'), ('copy', 'webtop-id'), ('start', 'webtop-id'), ('upload', 'all')])
+        self.assertTrue(all('capture_started_at' in row and 'captured_at' in row for row in records))
+
+    def test_stop_failure_restarts_only_attempted_writer_and_leaves_future_service_untouched(self):
+        events = []
+        def docker(*args, **kwargs):
+            events.append((args[0], args[-1]))
+            if args[0] == 'stop':
+                raise ConfigError('stop timed out')
+            return completed()
+        with mock.patch.object(backup, 'inventory', return_value=self.per_service_records()), mock.patch.object(backup, 'docker', side_effect=docker), mock.patch.object(backup, 'restic', side_effect=lambda *a, **kw: completed('[]')):
+            with self.assertRaises(ConfigError):
+                backup.create_backup(['pihole', 'webtop'], allow_dns_interruption=True, allow_local_repository=True)
+        self.assertEqual(events, [('stop', 'pihole-id'), ('start', 'pihole-id')])
+        self.assertFalse((self.root / 'local/last-backup.json').exists())
+
+    def test_later_copy_failure_leaves_previously_archived_dns_running(self):
+        events = []
+        def docker(*args, **kwargs):
+            events.append((args[0], args[-1]))
+            return completed()
+        def copy(container, target, archive):
+            events.append(('copy', container))
+            if container == 'webtop-id':
+                raise ConfigError('copy failed')
+            make_tar(archive)
+        with mock.patch.object(backup, 'inventory', return_value=self.per_service_records()), mock.patch.object(backup, 'docker', side_effect=docker), mock.patch.object(backup, 'copy_archive', side_effect=copy), mock.patch.object(backup, 'restic', side_effect=lambda *a, **kw: completed('[]')):
+            with self.assertRaises(ConfigError):
+                backup.create_backup(['pihole', 'webtop'], allow_dns_interruption=True, allow_local_repository=True)
+        self.assertEqual(events, [('stop', 'pihole-id'), ('copy', 'pihole-id'), ('start', 'pihole-id'),
+                                  ('stop', 'webtop-id'), ('copy', 'webtop-id'), ('start', 'webtop-id')])
+        self.assertFalse((self.root / 'local/last-backup.json').exists())
+
     def test_failed_upload_keeps_service_running_without_success_marker(self):
         def fail(args, env, cwd=None):
             if args[0] == 'backup':

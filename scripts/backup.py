@@ -176,10 +176,15 @@ def create_backup(services=None, allow_dns_interruption=False, allow_local_repos
     try:
         files = copy_private_config(stage)
         commit = source_commit()
-        try:
-            for record in writers:
-                docker('stop', '--time', '30', record['container_id'], timeout=90)
-            for record in records:
+        writer_services = {record['service'] for record in writers}
+        for record in records:
+            # Each application has independent state. Pause only its writer for
+            # its own archives, so large optional data never extends DNS downtime.
+            restart_required = record['service'] in writer_services
+            record['capture_started_at'] = now()
+            try:
+                if restart_required:
+                    docker('stop', '--time', '30', record['container_id'], timeout=90)
                 for index, mount in enumerate(record['mounts']):
                     if mount.get('exclude'):
                         continue
@@ -189,16 +194,17 @@ def create_backup(services=None, allow_dns_interruption=False, allow_local_repos
                     archive_members(path)  # A success marker must describe archives this restore adapter can read.
                     mount.update(archive='archives/' + name, sha256=digest(path),
                                  restore_path='state/' + record['service'] + '/' + str(index))
-        finally:
-            # Resume service before the potentially slow off-device upload.
-            # Include originally running writers even when an earlier stop failed.
-            for record in writers:
-                try:
-                    docker('start', record['container_id'], timeout=90)
-                except Exception:
-                    restart_failures.append(record['service'])
-        if restart_failures:
-            raise ConfigError('State was archived but service restart failed; run doctor before retrying backup.')
+                record['captured_at'] = now()
+            finally:
+                # A stop may time out after taking effect. Restore this originally
+                # running writer even on stop/copy failure; untouched writers stay up.
+                if restart_required:
+                    try:
+                        docker('start', record['container_id'], timeout=90)
+                    except Exception:
+                        restart_failures.append(record['service'])
+            if restart_failures:
+                raise ConfigError('State was archived but service restart failed; run doctor before retrying backup.')
         manifest = {'schema_version': 1, 'created_at': now(), 'project': project,
                     'source_commit': commit, 'services': records, 'configuration': files,
                     'ownership': 'Numeric UID/GID and modes remain authoritative in each tar archive.'}
